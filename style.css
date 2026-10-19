@@ -11,3 +11,5 @@
 
 /* Consistent scientific subscripts without stretching line spacing. */
 sub{font-size:75%;line-height:0;position:relative;vertical-align:baseline;bottom:-.25em}sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline;top:-.45em}
+
+#material-search{width:100%;box-sizing:border-box;background:#121d23;border:1px solid #3a4d57;border-radius:6px;color:#e5ebec;padding:10px;margin:0 0 5px;font:inherit;font-size:12px}.catalog-note{font-size:11px;line-height:1.55;color:#a3b4bd;margin:7px 0 12px}.material-meta{line-height:1.5;gap:10px}.material-meta>span{overflow-wrap:anywhere}#semi{font-size:12px}.select-label[for=metal]{line-height:1.5}
