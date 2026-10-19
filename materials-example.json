@@ -1,0 +1,4 @@
+{
+  "metals": [{"name":"Teaching metal","phi":4.8,"source":"https://ocw.mit.edu/courses/6-772-compound-semiconductor-devices-spring-2003/resources/lecture2/","note":"Illustrative values; not measurements of a specific metal"}],
+  "semiconductors": [{"name":"Teaching 2D material","chi":4.0,"eg":1.4,"layers":1,"source":"https://ocw.mit.edu/courses/6-772-compound-semiconductor-devices-spring-2003/resources/lecture2/","note":"Illustrative values; not measurements of a specific material"}]
+}
