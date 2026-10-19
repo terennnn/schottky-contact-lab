@@ -8,7 +8,7 @@
   {title:'Contact lets electrons redistribute.',body:'In this n-type example, ΦM > ΦS. Electrons initially flow net from the semiconductor to the metal. The resulting charge separation creates an electric field and bends the semiconductor bands upward.',formula:'At equilibrium: EF,M = EF,S',takeaway:'Equilibrium means zero net current, not that every electron stops moving. This animation is a teaching sequence, not a time-resolved simulation.'},
   {title:'Three arrows. Three different starting points.',body:'The interface barrier starts at EF. Band bending starts at the remote channel conduction band. The remaining distance is Δn, set here to 0.20 eV. Add the two smaller distances to recover the full barrier.',formula:'ΦBn = Δn + B',takeaway:'Try a larger metal work function. With χ and Δn fixed, both the electron barrier and upward band bending increase by 0.20 eV.'}
  ];
- const label=(x,y,t,c='#93a7b1',size=12,anchor='start')=>`<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}">${t}</text>`;
+ const label=(x,y,t,c='#93a7b1',size=12,anchor='start')=>`<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}">${Notation.svg(t)}</text>`;
  function arrow(x,a,b,color,t,side=1){const lo=Math.min(a,b),hi=Math.max(a,b);return `<path d="M${x} ${lo}V${hi} M${x-4} ${lo+6}L${x} ${lo}L${x+4} ${lo+6} M${x-4} ${hi-6}L${x} ${hi}L${x+4} ${hi-6}" stroke="${color}" stroke-width="2" fill="none"/>`+label(x+side*10,(lo+hi)/2+4,t,color,12,side===1?'start':'end');}
  function render(){
   const p=step===1?phase:1,bn=phi-4,bend=bn-.2,efS=(1-p)*bend;
@@ -38,7 +38,7 @@
   get('concept-diagram').innerHTML=s;
   if(step===1){get('concept-phase-label').textContent=phase<.001?'Before contact':phase>.999?'Equilibrium':'Charge redistributes';get('concept-replay').textContent=playing?'Pause sequence':phase>.999?'Replay sequence':'Play sequence';get('concept-progress').value=phase;}
  }
- function select(n){step=n;playing=false;phi=4.8;phase=n===1?0:1;get('concept-title').textContent=copy[n].title;get('concept-body').textContent=copy[n].body;get('concept-formula').textContent=copy[n].formula;get('concept-takeaway').textContent=copy[n].takeaway;
+ function select(n){step=n;playing=false;phi=4.8;phase=n===1?0:1;get('concept-title').innerHTML=Notation.html(copy[n].title);get('concept-body').innerHTML=Notation.html(copy[n].body);get('concept-formula').innerHTML=Notation.html(copy[n].formula);get('concept-takeaway').innerHTML=Notation.html(copy[n].takeaway);
   document.querySelectorAll('[data-concept]').forEach(b=>{const active=Number(b.dataset.concept)===n;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
   get('concept-sequence').hidden=n!==1;get('concept-comparison').hidden=n!==2;
   document.querySelectorAll('[data-concept-phi]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.conceptPhi)===phi)));

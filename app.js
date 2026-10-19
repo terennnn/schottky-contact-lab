@@ -31,6 +31,7 @@ function syncControls(){for(const k of ['phi','chi','eg','offset','length']){
  $(k).value=state[k];$(k+'-value').textContent=k==='length'?state[k].toFixed(1):fmt(state[k]);
 }for(const t of ['n','p']){const b=$('type-'+t);b.classList.toggle('selected',state.type===t);b.setAttribute('aria-pressed',String(state.type===t));}
  $('offset-desc').textContent=state.type==='n'?'Δₙ = E꜀(channel) − Eꜰ':'Δₚ = Eꜰ − Eᵥ(channel)';
+ Notation.tree($('offset-desc'));
  $('progress').value=state.p;
  $('pause-motion').textContent=state.paused?'Resume motion':'Pause motion';$('pause-motion').setAttribute('aria-pressed',String(state.paused));
  document.body.classList.toggle('still',state.paused);
@@ -49,6 +50,7 @@ function update(){
  for(const [id,value] of [['bn',model.bn],['bp',model.bp],['eq-bn',model.bn],['eq-delta',model.delta]])$(id).textContent=fmt(value)+(id.startsWith('eq')?' eV':'');
  $('bend').textContent=signed(model.bend);$('eq-bend').textContent=signed(model.bend)+' eV';
  $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${state.semi.name} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Semiconductor ΦS = χ + Δn = ${fmt(model.phiS)} eV.${state.custom?' Manually edited: custom values are shown.':''}`;
+ Notation.tree($('current-source'));
  updateStage();renderPlot();renderAtoms();
 }
 function updateStage(){
@@ -61,11 +63,11 @@ function updateStage(){
  else if(early){text=`Before contact, the vacuum reference is shared but the Fermi levels differ: ΦM = ${fmt(state.phi)} eV and ΦS = ${fmt(model.phiS)} eV. Press play to watch the approach to equilibrium.`;}
  else if(!eq){text=`Electrons initially move net toward the ${model.bend>0?'metal':'semiconductor'}. The redistributed charge creates an electric field, and the semiconductor bands bend ${model.bend>0?'upward':'downward'}. This is an illustrative sequence, not a self-consistent time evolution.`;}
  else{text=`At equilibrium, EF,M = EF,S and net current is zero. ${model.regime==='flat'?'The bands are nearly flat.':model.regime==='accumulation'?`${state.type==='n'?'Electrons':'Holes'} accumulate near the interface. `:`${state.type==='n'?'Electrons':'Holes'} are depleted near the contact. `}${model.inverted?'Strong bending crosses a simplified midgap marker: inversion may occur and needs a fuller carrier calculation. ':''}${model.majority<0?'The ideal majority-carrier barrier is negative: there is no positive injection barrier, but contact resistance is not necessarily zero.':''}`;}
- $('stage-text').textContent=text;
+ $('stage-text').innerHTML=Notation.html(text);
  $('charge-direction').textContent=Math.abs(model.bend)<.015?'Similar work functions · Little initial net transfer':eq?'Equilibrium: bidirectional exchange, zero net current':`Initial net transfer: ${model.bend>0?'semiconductor → metal':'metal → semiconductor'}`;
 }
 const C={cyan:'#69c9e0',amber:'#e4b777',mint:'#97cbb6',muted:'#83959f',text:'#dce7ec'};
-function text(x,y,label,color=C.muted,size=12,anchor='start',extra=''){return `<text x="${x}" y="${y}" fill="${color}" font-size="${size}" text-anchor="${anchor}" ${extra}>${esc(label)}</text>`;}
+function text(x,y,label,color=C.muted,size=12,anchor='start',extra=''){return `<text x="${x}" y="${y}" fill="${color}" font-size="${size}" text-anchor="${anchor}" ${extra}>${Notation.svg(label)}</text>`;}
 function line(x1,y1,x2,y2,color,width=1,dash=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;}
 function arrow(x,y1,y2,color,label,side=1){
  const a=Math.min(y1,y2),b=Math.max(y1,y2);if(b-a<5)return '';
