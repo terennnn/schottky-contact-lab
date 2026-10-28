@@ -8,15 +8,24 @@ const state={phi:5.1,chi:4.03,eg:2.39,offset:.2,type:'n',length:1,p:1,playing:fa
 let model,clock=0,lastFrame=0,renderTime=0,pointer=null,importCount=0;
 function fillMenus(){
  const mi=$('metal').value,si=$('semi').value;
- $('metal').replaceChildren(...metals.map(m=>new Option(`${m.name} · ${m.zh||'Imported'}   ${fmt(m.phi)} eV`,m.id)));
+ fillMetals(mi);
  fillSemiconductors(si);
  if(metals.some(m=>m.id===mi))$('metal').value=mi;
  if(semiconductors.some(m=>m.id===si))$('semi').value=si;
 }
+function fillMetals(selected=$('metal').value){
+ const query=$('metal-search').value.trim().toLowerCase();
+ const matches=metals.filter(m=>`${m.name} ${m.zh||''}`.toLowerCase().includes(query));
+ $('metal').replaceChildren(...matches.map(m=>new Option(`${m.name} · ${m.zh||'Imported'}   ${fmt(m.phi)} eV`,m.id)));
+ if(!matches.length&&state.metal)$('metal').add(new Option(`No matches — current: ${state.metal.name}`,state.metal.id));
+ if(matches.some(m=>m.id===selected))$('metal').value=selected;
+ $('metal-count').textContent=`${matches.length} matching metal${matches.length===1?'':'s'}`;
+ return matches.length;
+}
 function fillSemiconductors(selected=$('semi').value){
  const query=($('material-search').value||'').trim().toLowerCase();
  const matches=semiconductors.filter(m=>`${m.name} ${m.zh||''} ${m.note||''}`.toLowerCase().includes(query));
- $('semi').replaceChildren(...matches.map(m=>new Option(`${m.name} · ${m.zh||'Imported material'} · ${m.rows[0].layers}L`,m.id)));
+ $('semi').replaceChildren(...matches.map(m=>new Option(`${m.name} · ${m.zh||'Imported material'}`,m.id)));
  if(!matches.length&&state.semi)$('semi').add(new Option(`No matches — current: ${state.semi.name} · ${state.semi.zh||''}`,state.semi.id));
  if(matches.some(m=>m.id===selected))$('semi').value=selected;
  $('catalog-count').textContent=`${matches.length.toLocaleString()} matching structure records · C2DB snapshot · 19 Oct 2026`;
@@ -159,7 +168,7 @@ function renderAtoms(){
  for(const a of pts)for(const b2 of pts){const dx=a.x-b2.x,dy=a.y-b2.y;if(dx*dx+dy*dy<step*step*1.15&&dx*dx+dy*dy>10){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b2.x,b2.y);ctx.stroke();}}
  for(const a of pts){const y=a.y+Math.sin(clock*1.7+a.col*.5+a.row)*.6;ctx.fillStyle=(a.row+a.col)%3===0?'#d7e3df':state.semi.color||'#72bdc8';ctx.globalAlpha=(a.row+a.col)%3===0?.9:.65;ctx.beginPath();ctx.arc(a.x,y,(a.row+a.col)%3===0?4.5:3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
  // Excess interface charge and countercharge: signs follow electron transfer.
- if(p>.02&&Math.abs(model.bend)>.015){ctx.font='12px Space Grotesk, sans-serif';const count=7;
+ if(p>.02&&Math.abs(model.bend)>.015){ctx.font='12px Times New Roman, Times, serif';const count=7;
   for(let i=0;i<count;i++){const yy=43+i*16;ctx.globalAlpha=p*.8;ctx.fillStyle=C.amber;ctx.fillText(model.bend>0?'−':'+',b-9,yy);ctx.fillStyle=C.mint;ctx.fillText(model.bend>0?'+':'−',right+12,yy);}
   ctx.globalAlpha=1;
   if(p<.999){ctx.strokeStyle='#97cbb650';ctx.setLineDash([4,5]);for(let j=0;j<3;j++){const yy=57+j*32;ctx.beginPath();ctx.moveTo(b-12,yy);ctx.lineTo(right+65,yy);ctx.stroke();}ctx.setLineDash([]);}
@@ -174,7 +183,7 @@ function renderAtoms(){
    ctx.shadowColor=C.cyan;ctx.shadowBlur=8;ctx.fillStyle='#b9ebf5';ctx.globalAlpha=.65;ctx.beginPath();ctx.arc(x,y,2.2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;
   }
  }
- ctx.fillStyle=C.muted;ctx.font='9px Space Grotesk, sans-serif';ctx.textAlign='center';if(p>.02&&Math.abs(model.bend)>.015)ctx.fillText('Net interface charge (schematic)',right+10,25);ctx.font='10px Space Grotesk, sans-serif';ctx.textAlign='center';ctx.fillText((state.classroom?'Teaching metal':state.metal.name)+' / electrode',w*.17,167);ctx.fillText((state.classroom?'Teaching semiconductor':state.semi.name)+' / 2D channel',w*.69,167);ctx.textAlign='left';
+ ctx.fillStyle=C.muted;ctx.font='9px Times New Roman, Times, serif';ctx.textAlign='center';if(p>.02&&Math.abs(model.bend)>.015)ctx.fillText('Net interface charge (schematic)',right+10,25);ctx.font='10px Times New Roman, Times, serif';ctx.textAlign='center';ctx.fillText((state.classroom?'Teaching metal':state.metal.name)+' / electrode',w*.17,167);ctx.fillText((state.classroom?'Teaching semiconductor':state.semi.name)+' / 2D channel',w*.69,167);ctx.textAlign='left';
 }
 function animate(time){
  const dt=lastFrame?Math.min((time-lastFrame)/1000,.06):0;lastFrame=time;
@@ -183,6 +192,7 @@ function animate(time){
  requestAnimationFrame(animate);
 }
 fillMenus();$('metal').value='m0';$('semi').value='s0';applyMaterial();syncControls();
+$('metal-search').addEventListener('input',()=>{const previous=$('metal').value;if(fillMetals(previous)&&$('metal').value!==previous)applyMaterial();});
 $('material-search').addEventListener('input',()=>{const previous=$('semi').value;if(fillSemiconductors(previous)&&$('semi').value!==previous)applyMaterial();});
 for(const id of ['metal','semi','layers'])$(id).addEventListener('change',applyMaterial);
 for(const t of ['n','p'])$('type-'+t).addEventListener('click',()=>{state.type=t;syncControls();update();});
@@ -192,7 +202,7 @@ document.querySelectorAll('[data-progress]').forEach(b=>b.addEventListener('clic
 $('play').addEventListener('click',()=>{if(state.p>=1)state.p=0;state.playing=!state.playing;if(state.playing)state.paused=false;syncControls();updateStage();renderPlot();});
 $('pause-motion').addEventListener('click',()=>{state.paused=!state.paused;syncControls();renderPlot();renderAtoms();});
 $('vacuum').addEventListener('change',renderPlot);$('carriers').addEventListener('change',()=>{renderPlot();renderAtoms();});
-$('reset').addEventListener('click',()=>{state.type='n';state.offset=.2;state.length=1;state.p=1;state.playing=false;$('material-search').value='';fillSemiconductors('s0');$('metal').value='m0';$('semi').value='s0';$('layers').value='1';$('vacuum').checked=false;$('carriers').checked=true;applyMaterial();});
+$('reset').addEventListener('click',()=>{state.type='n';state.offset=.2;state.length=1;state.p=1;state.playing=false;$('metal-search').value='';fillMetals('m0');$('material-search').value='';fillSemiconductors('s0');$('metal').value='m0';$('semi').value='s0';$('layers').value='1';$('vacuum').checked=false;$('carriers').checked=true;applyMaterial();});
 $('classroom').addEventListener('click',()=>{state.phi=4.8;state.chi=4;state.eg=1.4;state.offset=.2;state.type='n';state.p=1;state.playing=false;state.custom=true;state.classroom=true;state.length=1;syncControls();update();});
 $('bands').addEventListener('pointermove',e=>{const r=$('bands').getBoundingClientRect(),scale=Math.min(r.width/960,r.height/440),offX=(r.width-960*scale)/2,offY=(r.height-440*scale)/2;pointer={x:(e.clientX-r.left-offX)/scale,y:(e.clientY-r.top-offY)/scale};renderPlot();});
 $('bands').addEventListener('pointerleave',()=>{pointer=null;renderPlot();});
@@ -210,7 +220,7 @@ function validatePayload(obj){
  const b=ss.map((r,i)=>{const chi=number(r.chi,-10,15,'chi'),eg=number(r.eg,.061,15,'eg'),layers=r.layers??1;if(!Number.isInteger(layers)||layers<1||layers>4)throw Error('layers must be 1, 2, 3, or 4.');return {...common(r),id:`importS${importCount}-${i}`,color:'#8ebdc6',rows:[{chi,eg,layers}]};});
  return {a,b};
 }
-function importData(obj){const {a,b}=validatePayload(obj);if([...metals,...semiconductors].filter(m=>m.id.startsWith('import')).length+a.length+b.length>180)throw Error('The total limit is 180 materials. Reload to clear imported data.');metals.push(...a);semiconductors.push(...b);importCount++;$('material-search').value='';fillMenus();if(a[0])$('metal').value=a[0].id;if(b[0])$('semi').value=b[0].id;applyMaterial();importStatus(`Imported ${a.length} metal(s) and ${b.length} semiconductor(s). The new materials are now selected.`,false);}
+function importData(obj){const {a,b}=validatePayload(obj);if([...metals,...semiconductors].filter(m=>m.id.startsWith('import')).length+a.length+b.length>180)throw Error('The total limit is 180 materials. Reload to clear imported data.');metals.push(...a);semiconductors.push(...b);importCount++;$('metal-search').value='';$('material-search').value='';fillMenus();if(a[0])$('metal').value=a[0].id;if(b[0])$('semi').value=b[0].id;applyMaterial();importStatus(`Imported ${a.length} metal(s) and ${b.length} semiconductor(s). The new materials are now selected.`,false);}
 function importStatus(msg,error){$('import-status').textContent=msg;$('import-status').className='import-status '+(error?'error':'success');}
 $('fetch-data').addEventListener('click',async()=>{
  const url=safeUrl($('import-url').value);if(!url){importStatus('Enter a valid HTTPS JSON URL.',true);return;}
