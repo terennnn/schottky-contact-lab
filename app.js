@@ -8,7 +8,7 @@ const safeUrl=u=>{try{const x=new URL(u);return x.protocol==='https:'?x.href:'';
 const state={phi:5.1,chi:4.03,eg:2.39,offset:.2,type:'n',length:1,p:1,playing:false,paused:matchMedia('(prefers-reduced-motion: reduce)').matches,custom:false,classroom:false,metal:metals[0],semi:semiconductors[0],layers:1};
 let model,clock=0,lastFrame=0,renderTime=0,pointer=null,importCount=0;
 const materialPickers={};
-const materialLabel=(kind,m)=>kind==='metal'?`${m.name} · ${m.zh||'Imported'} — ${fmt(m.phi)} eV`:`${chemicalName(m.name)} · ${m.zh||'Imported material'}`;
+const materialLabel=(kind,m)=>kind==='metal'?`${m.name} · ${m.zh||'Imported'} — ${fmt(m.phi)} eV`:chemicalName(m.name);
 function fillMenus(){
  for(const [kind,items] of [['metal',metals],['semi',semiconductors]]){
   const selected=$(kind).value;
@@ -21,16 +21,16 @@ function setupMaterialPicker(kind){
  const items=()=>kind==='metal'?metals:semiconductors;
  let matches=[],active=-1,open=false;
  function restore(){const chosen=items().find(m=>m.id===$(kind).value);input.value=chosen?materialLabel(kind,chosen):'';}
- function close(){open=false;list.hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');restore();status.textContent=kind==='metal'?'Choose or type a metal name / symbol':'Choose or type a formula / ID · C2DB snapshot';}
+ function close(){open=false;list.hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');restore();status.textContent=kind==='metal'?'Choose or type a metal name / symbol':'Type or choose a material';}
  function highlight(index){active=index;[...list.querySelectorAll('[role=option]')].forEach((el,i)=>el.classList.toggle('active',i===active));const el=list.querySelectorAll('[role=option]')[active];if(el){input.setAttribute('aria-activedescendant',el.id);el.scrollIntoView({block:'nearest'});}}
  function show(query=''){
   const q=query.trim().toLowerCase().replace(/[₀-₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d)));
   matches=items().filter(m=>`${m.name} ${m.zh||''} ${m.note||''}`.toLowerCase().includes(q));
   if(q)matches.sort((a,b)=>Number(b.name.toLowerCase()===q)-Number(a.name.toLowerCase()===q)||Number(b.name.toLowerCase().startsWith(q))-Number(a.name.toLowerCase().startsWith(q)));
   const total=matches.length;matches=matches.slice(0,100);active=-1;
-  list.replaceChildren(...matches.map((m,i)=>{const el=document.createElement('div');el.id=`${kind}-option-${i}`;el.setAttribute('role','option');el.setAttribute('aria-selected',String(m.id===$(kind).value));el.dataset.index=i;const title=document.createElement('span');title.textContent=kind==='metal'?materialLabel(kind,m):chemicalName(m.name);el.append(title);if(kind==='semi'){const detail=document.createElement('small');detail.textContent=m.record?`Structure ID: ${m.record.uid} · Layer group: ${m.record.layergroup}`:m.zh||'Imported material';el.append(detail);}return el;}));
+  list.replaceChildren(...matches.map((m,i)=>{const el=document.createElement('div');el.id=`${kind}-option-${i}`;el.setAttribute('role','option');el.setAttribute('aria-selected',String(m.id===$(kind).value));el.dataset.index=i;const title=document.createElement('span');title.textContent=kind==='metal'?materialLabel(kind,m):chemicalName(m.name);el.append(title);return el;}));
   if(!total){const el=document.createElement('div');el.className='combo-empty';el.textContent='No matching materials. Try another name or formula.';list.append(el);}
-  status.textContent=`${total.toLocaleString()} matching ${kind==='metal'?'metals':'structure records'}${total>100?' · First 100 shown; type to narrow':''}`;
+  status.textContent=`${total.toLocaleString()} matching ${kind==='metal'?'metals':'materials'}${total>100?' · First 100 shown; type to narrow':''}`;
   open=true;list.hidden=false;input.setAttribute('aria-expanded','true');input.removeAttribute('aria-activedescendant');
  }
  function choose(index){const m=matches[index];if(!m)return;$(kind).value=m.id;close();applyMaterial();}
@@ -48,7 +48,7 @@ function setupMaterialPicker(kind){
  toggle.addEventListener('mousedown',e=>e.preventDefault());
  toggle.addEventListener('click',()=>{if(open)close();else{input.focus();show();}});
  materialPickers[kind]={restore,close};restore();
- status.textContent=kind==='metal'?'Choose or type a metal name / symbol':'Choose or type a formula / ID · C2DB snapshot';
+ status.textContent=kind==='metal'?'Choose or type a metal name / symbol':'Type or choose a material';
 }
 function sourceLink(id,url){const a=$(id),u=safeUrl(url);if(u){a.href=u;a.removeAttribute('aria-disabled');a.hidden=false;}else{a.removeAttribute('href');a.hidden=true;}}
 function applyMaterial(){
@@ -61,6 +61,7 @@ function applyMaterial(){
  if(rows.some(r=>r.layers===previousLayer))$('layers').value=String(previousLayer);
  state.layers=Number($('layers').value);
  const row=rows.find(r=>r.layers===state.layers)||rows[0];
+ state.semi.record=row.record||state.semi.record;state.semi.source=row.source||state.semi.source;
  state.phi=state.metal.phi;state.chi=row.chi;state.eg=row.eg;state.custom=false;state.classroom=false;
  clampOffset();syncControls();update();
 }
@@ -84,7 +85,7 @@ function update(){
  $('pair-label').textContent=state.classroom?'Teaching metal / semiconductor · Illustrative':`${state.custom?'Custom ':''}${state.metal.name} / ${chemicalName(state.semi.name)} · ${state.layers}L`;
  $('metal-name').textContent=`Work function ΦM = ${fmt(state.phi)} eV${state.custom?' · Custom':''}`;Notation.tree($('metal-name'));
  sourceLink('metal-source',state.metal.source);sourceLink('semi-source',state.semi.source);
- $('semi-note').textContent=state.semi.note.includes('GW')?'2H phase · Free-standing GW':state.semi.note;
+ $('semi-note').textContent=state.semi.record?.origin==='Americo23'?'Self-intercalated bilayer':'C2DB';
  document.querySelector('.method').textContent=state.semi.method||'Custom data';
  $('data-mode').textContent=state.custom?'Custom parameters · Literature values modified':state.metal.id.startsWith('import')||state.semi.id.startsWith('import')?'Imported data':'Literature values · Editable';
  for(const [id,value] of [['bn',model.bn],['bp',model.bp],['eq-bn',model.bn],['eq-delta',model.delta]])$(id).textContent=fmt(value)+(id.startsWith('eq')?' eV':'');
