@@ -1,40 +1,60 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const fmt=v=>(Math.abs(v)<.0005?0:v).toFixed(2);
+const chemicalName=name=>/^(?:[A-Z][a-z]?\d*)+$/.test(name)?name.replace(/\d/g,d=>'₀₁₂₃₄₅₆₇₈₉'[Number(d)]):name;
 const signed=v=>(v>=-.0005?'+':'')+fmt(v);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeUrl=u=>{try{const x=new URL(u);return x.protocol==='https:'?x.href:'';}catch{return '';}};
 const state={phi:5.1,chi:4.03,eg:2.39,offset:.2,type:'n',length:1,p:1,playing:false,paused:matchMedia('(prefers-reduced-motion: reduce)').matches,custom:false,classroom:false,metal:metals[0],semi:semiconductors[0],layers:1};
 let model,clock=0,lastFrame=0,renderTime=0,pointer=null,importCount=0;
+const materialPickers={};
+const materialLabel=(kind,m)=>kind==='metal'?`${m.name} · ${m.zh||'Imported'} — ${fmt(m.phi)} eV`:`${chemicalName(m.name)} · ${m.zh||'Imported material'}`;
 function fillMenus(){
- const mi=$('metal').value,si=$('semi').value;
- fillMetals(mi);
- fillSemiconductors(si);
- if(metals.some(m=>m.id===mi))$('metal').value=mi;
- if(semiconductors.some(m=>m.id===si))$('semi').value=si;
+ for(const [kind,items] of [['metal',metals],['semi',semiconductors]]){
+  const selected=$(kind).value;
+  $(kind).replaceChildren(...items.map(m=>new Option(materialLabel(kind,m),m.id)));
+  if(items.some(m=>m.id===selected))$(kind).value=selected;
+ }
 }
-function fillMetals(selected=$('metal').value){
- const query=$('metal-search').value.trim().toLowerCase();
- const matches=metals.filter(m=>`${m.name} ${m.zh||''}`.toLowerCase().includes(query));
- $('metal').replaceChildren(...matches.map(m=>new Option(`${m.name} · ${m.zh||'Imported'}   ${fmt(m.phi)} eV`,m.id)));
- if(!matches.length&&state.metal)$('metal').add(new Option(`No matches — current: ${state.metal.name}`,state.metal.id));
- if(matches.some(m=>m.id===selected))$('metal').value=selected;
- $('metal-count').textContent=`${matches.length} matching metal${matches.length===1?'':'s'}`;
- return matches.length;
-}
-function fillSemiconductors(selected=$('semi').value){
- const query=($('material-search').value||'').trim().toLowerCase();
- const matches=semiconductors.filter(m=>`${m.name} ${m.zh||''} ${m.note||''}`.toLowerCase().includes(query));
- $('semi').replaceChildren(...matches.map(m=>new Option(`${m.name} · ${m.zh||'Imported material'}`,m.id)));
- if(!matches.length&&state.semi)$('semi').add(new Option(`No matches — current: ${state.semi.name} · ${state.semi.zh||''}`,state.semi.id));
- if(matches.some(m=>m.id===selected))$('semi').value=selected;
- $('catalog-count').textContent=`${matches.length.toLocaleString()} matching structure records · C2DB snapshot · 19 Oct 2026`;
- return matches.length;
+function setupMaterialPicker(kind){
+ const input=$(kind+'-input'),list=$(kind+'-options'),toggle=$(kind+'-toggle'),status=$(kind==='metal'?'metal-count':'catalog-count');
+ const items=()=>kind==='metal'?metals:semiconductors;
+ let matches=[],active=-1,open=false;
+ function restore(){const chosen=items().find(m=>m.id===$(kind).value);input.value=chosen?materialLabel(kind,chosen):'';}
+ function close(){open=false;list.hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');restore();status.textContent=kind==='metal'?'Choose or type a metal name / symbol':'Choose or type a formula / ID · C2DB snapshot';}
+ function highlight(index){active=index;[...list.querySelectorAll('[role=option]')].forEach((el,i)=>el.classList.toggle('active',i===active));const el=list.querySelectorAll('[role=option]')[active];if(el){input.setAttribute('aria-activedescendant',el.id);el.scrollIntoView({block:'nearest'});}}
+ function show(query=''){
+  const q=query.trim().toLowerCase().replace(/[₀-₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d)));
+  matches=items().filter(m=>`${m.name} ${m.zh||''} ${m.note||''}`.toLowerCase().includes(q));
+  if(q)matches.sort((a,b)=>Number(b.name.toLowerCase()===q)-Number(a.name.toLowerCase()===q)||Number(b.name.toLowerCase().startsWith(q))-Number(a.name.toLowerCase().startsWith(q)));
+  const total=matches.length;matches=matches.slice(0,100);active=-1;
+  list.replaceChildren(...matches.map((m,i)=>{const el=document.createElement('div');el.id=`${kind}-option-${i}`;el.setAttribute('role','option');el.setAttribute('aria-selected',String(m.id===$(kind).value));el.dataset.index=i;const title=document.createElement('span');title.textContent=kind==='metal'?materialLabel(kind,m):chemicalName(m.name);el.append(title);if(kind==='semi'){const detail=document.createElement('small');detail.textContent=m.record?`Structure ID: ${m.record.uid} · Layer group: ${m.record.layergroup}`:m.zh||'Imported material';el.append(detail);}return el;}));
+  if(!total){const el=document.createElement('div');el.className='combo-empty';el.textContent='No matching materials. Try another name or formula.';list.append(el);}
+  status.textContent=`${total.toLocaleString()} matching ${kind==='metal'?'metals':'structure records'}${total>100?' · First 100 shown; type to narrow':''}`;
+  open=true;list.hidden=false;input.setAttribute('aria-expanded','true');input.removeAttribute('aria-activedescendant');
+ }
+ function choose(index){const m=matches[index];if(!m)return;$(kind).value=m.id;close();applyMaterial();}
+ input.addEventListener('focus',()=>{input.select();show();});
+ input.addEventListener('click',()=>{if(!open)show();});
+ input.addEventListener('input',()=>show(input.value));
+ input.addEventListener('blur',close);
+ input.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!open)show();if(matches.length)highlight(e.key==='ArrowDown'?Math.min(active+1,matches.length-1):active<0?matches.length-1:Math.max(active-1,0));}
+  else if(e.key==='Enter'&&open){e.preventDefault();if(matches.length)choose(active<0?0:active);}
+  else if(e.key==='Escape'){e.preventDefault();close();}
+ });
+ list.addEventListener('mousedown',e=>e.preventDefault());
+ list.addEventListener('click',e=>{const el=e.target.closest('[role=option]');if(el)choose(Number(el.dataset.index));});
+ toggle.addEventListener('mousedown',e=>e.preventDefault());
+ toggle.addEventListener('click',()=>{if(open)close();else{input.focus();show();}});
+ materialPickers[kind]={restore,close};restore();
+ status.textContent=kind==='metal'?'Choose or type a metal name / symbol':'Choose or type a formula / ID · C2DB snapshot';
 }
 function sourceLink(id,url){const a=$(id),u=safeUrl(url);if(u){a.href=u;a.removeAttribute('aria-disabled');a.hidden=false;}else{a.removeAttribute('href');a.hidden=true;}}
 function applyMaterial(){
  state.metal=metals.find(m=>m.id===$('metal').value)||metals[0];
  state.semi=semiconductors.find(m=>m.id===$('semi').value)||semiconductors[0];
+ Object.values(materialPickers).forEach(picker=>picker.restore());
  const rows=state.semi.rows;
  const previousLayer=Number($('layers').value);
  $('layers').replaceChildren(...rows.map(r=>new Option(`${r.layers}L · ${r.layers===1?'Monolayer':state.semi.record?.origin==='Americo23'?'Self-intercalated bilayer':r.layers+' layers'}`,String(r.layers))));
@@ -61,7 +81,7 @@ function update(){
  const regimeName=model.regime==='flat'?'Flat band':model.regime==='accumulation'?(state.type==='n'?'Electron accumulation':'Hole accumulation'):(state.type==='n'?'Electron depletion':'Hole depletion');
  $('regime').textContent=regimeName+(model.inverted?' · Possible inversion':'');
  $('zone-key').textContent=model.regime==='flat'?'Flat band · No bending':model.regime==='accumulation'?'Accumulation region (schematic)':'Space-charge region (schematic)';
- $('pair-label').textContent=state.classroom?'Teaching metal / semiconductor · Illustrative':`${state.custom?'Custom ':''}${state.metal.name} / ${state.semi.name} · ${state.layers}L`;
+ $('pair-label').textContent=state.classroom?'Teaching metal / semiconductor · Illustrative':`${state.custom?'Custom ':''}${state.metal.name} / ${chemicalName(state.semi.name)} · ${state.layers}L`;
  $('metal-name').textContent=`Work function ΦM = ${fmt(state.phi)} eV${state.custom?' · Custom':''}`;Notation.tree($('metal-name'));
  sourceLink('metal-source',state.metal.source);sourceLink('semi-source',state.semi.source);
  $('semi-note').textContent=state.semi.note.includes('GW')?'2H phase · Free-standing GW':state.semi.note;
@@ -69,7 +89,7 @@ function update(){
  $('data-mode').textContent=state.custom?'Custom parameters · Literature values modified':state.metal.id.startsWith('import')||state.semi.id.startsWith('import')?'Imported data':'Literature values · Editable';
  for(const [id,value] of [['bn',model.bn],['bp',model.bp],['eq-bn',model.bn],['eq-delta',model.delta]])$(id).textContent=fmt(value)+(id.startsWith('eq')?' eV':'');
  $('bend').textContent=signed(model.bend);$('eq-bend').textContent=signed(model.bend)+' eV';
- $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${state.semi.name} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Semiconductor ΦS = χ + Δn = ${fmt(model.phiS)} eV.${state.custom?' Manually edited: custom values are shown.':''}`;
+ $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${chemicalName(state.semi.name)} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Semiconductor ΦS = χ + Δn = ${fmt(model.phiS)} eV.${state.custom?' Manually edited: custom values are shown.':''}`;
  Notation.tree($('current-source'));
  updateStage();renderPlot();renderAtoms();
 }
@@ -107,7 +127,7 @@ function renderPlot(){
  s+=`<rect x="80" y="62" width="228" height="300" fill="url(#metalGrad)"/><rect x="${sx}" y="62" width="${end-sx}" height="300" fill="#19242a" fill-opacity=".2"/>`;
  if(p>.01&&m.regime!=='flat')s+=`<rect x="${sx}" y="62" width="${zoneEnd-sx}" height="300" fill="url(#zone)" opacity="${p}"/>`;
  for(let e=Math.ceil(emin*2)/2;e<=emax;e+=.5){const y=Y(e);s+=line(70,y,890,y,'#2a3740',.7,'2 6')+text(61,y+4,fmt(e),'#657985',10,'end');}
- s+=line(70,355,70,65,'#657985')+text(36,48,'E (eV)',C.muted,11)+text(80,31,`${state.classroom?'Teaching metal':state.metal.name} · METAL`,C.amber,11)+text(sx+15,31,`${state.classroom?'Teaching semiconductor':state.semi.name} · ${state.layers}L · ${state.type}-TYPE`,C.cyan,11);
+ s+=line(70,355,70,65,'#657985')+text(36,48,'E (eV)',C.muted,11)+text(80,31,`${state.classroom?'Teaching metal':state.metal.name} · METAL`,C.amber,11)+text(sx+15,31,`${state.classroom?'Teaching semiconductor':chemicalName(state.semi.name)} · ${state.layers}L · ${state.type}-TYPE`,C.cyan,11);
  s+=line(308,62,308,362,'#556570',1)+line(sx,62,sx,362,'#556570',1);
  const cb=curve(),vb=curve(-state.eg);
  s+=`<path class="band-line" d="${cb}" fill="none" stroke="${C.cyan}" stroke-width="2.8"/><path d="${vb}" fill="none" stroke="${C.amber}" stroke-width="2.8"/>`;
@@ -183,7 +203,7 @@ function renderAtoms(){
    ctx.shadowColor=C.cyan;ctx.shadowBlur=8;ctx.fillStyle='#b9ebf5';ctx.globalAlpha=.65;ctx.beginPath();ctx.arc(x,y,2.2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;
   }
  }
- ctx.fillStyle=C.muted;ctx.font='9px Times New Roman, Times, serif';ctx.textAlign='center';if(p>.02&&Math.abs(model.bend)>.015)ctx.fillText('Net interface charge (schematic)',right+10,25);ctx.font='10px Times New Roman, Times, serif';ctx.textAlign='center';ctx.fillText((state.classroom?'Teaching metal':state.metal.name)+' / electrode',w*.17,167);ctx.fillText((state.classroom?'Teaching semiconductor':state.semi.name)+' / 2D channel',w*.69,167);ctx.textAlign='left';
+ ctx.fillStyle=C.muted;ctx.font='9px Times New Roman, Times, serif';ctx.textAlign='center';if(p>.02&&Math.abs(model.bend)>.015)ctx.fillText('Net interface charge (schematic)',right+10,25);ctx.font='10px Times New Roman, Times, serif';ctx.textAlign='center';ctx.fillText((state.classroom?'Teaching metal':state.metal.name)+' / electrode',w*.17,167);ctx.fillText((state.classroom?'Teaching semiconductor':chemicalName(state.semi.name))+' / 2D channel',w*.69,167);ctx.textAlign='left';
 }
 function animate(time){
  const dt=lastFrame?Math.min((time-lastFrame)/1000,.06):0;lastFrame=time;
@@ -192,8 +212,7 @@ function animate(time){
  requestAnimationFrame(animate);
 }
 fillMenus();$('metal').value='m0';$('semi').value='s0';applyMaterial();syncControls();
-$('metal-search').addEventListener('input',()=>{const previous=$('metal').value;if(fillMetals(previous)&&$('metal').value!==previous)applyMaterial();});
-$('material-search').addEventListener('input',()=>{const previous=$('semi').value;if(fillSemiconductors(previous)&&$('semi').value!==previous)applyMaterial();});
+setupMaterialPicker('metal');setupMaterialPicker('semi');
 for(const id of ['metal','semi','layers'])$(id).addEventListener('change',applyMaterial);
 for(const t of ['n','p'])$('type-'+t).addEventListener('click',()=>{state.type=t;syncControls();update();});
 for(const k of ['phi','chi','eg','offset','length'])$(k).addEventListener('input',()=>{state[k]=Number($(k).value);if(['phi','chi','eg'].includes(k))state.custom=true;clampOffset();syncControls();update();});
@@ -202,7 +221,7 @@ document.querySelectorAll('[data-progress]').forEach(b=>b.addEventListener('clic
 $('play').addEventListener('click',()=>{if(state.p>=1)state.p=0;state.playing=!state.playing;if(state.playing)state.paused=false;syncControls();updateStage();renderPlot();});
 $('pause-motion').addEventListener('click',()=>{state.paused=!state.paused;syncControls();renderPlot();renderAtoms();});
 $('vacuum').addEventListener('change',renderPlot);$('carriers').addEventListener('change',()=>{renderPlot();renderAtoms();});
-$('reset').addEventListener('click',()=>{state.type='n';state.offset=.2;state.length=1;state.p=1;state.playing=false;$('metal-search').value='';fillMetals('m0');$('material-search').value='';fillSemiconductors('s0');$('metal').value='m0';$('semi').value='s0';$('layers').value='1';$('vacuum').checked=false;$('carriers').checked=true;applyMaterial();});
+$('reset').addEventListener('click',()=>{state.type='n';state.offset=.2;state.length=1;state.p=1;state.playing=false;Object.values(materialPickers).forEach(picker=>picker.close());$('metal').value='m0';$('semi').value='s0';$('layers').value='1';$('vacuum').checked=false;$('carriers').checked=true;applyMaterial();});
 $('classroom').addEventListener('click',()=>{state.phi=4.8;state.chi=4;state.eg=1.4;state.offset=.2;state.type='n';state.p=1;state.playing=false;state.custom=true;state.classroom=true;state.length=1;syncControls();update();});
 $('bands').addEventListener('pointermove',e=>{const r=$('bands').getBoundingClientRect(),scale=Math.min(r.width/960,r.height/440),offX=(r.width-960*scale)/2,offY=(r.height-440*scale)/2;pointer={x:(e.clientX-r.left-offX)/scale,y:(e.clientY-r.top-offY)/scale};renderPlot();});
 $('bands').addEventListener('pointerleave',()=>{pointer=null;renderPlot();});
@@ -220,7 +239,7 @@ function validatePayload(obj){
  const b=ss.map((r,i)=>{const chi=number(r.chi,-10,15,'chi'),eg=number(r.eg,.061,15,'eg'),layers=r.layers??1;if(!Number.isInteger(layers)||layers<1||layers>4)throw Error('layers must be 1, 2, 3, or 4.');return {...common(r),id:`importS${importCount}-${i}`,color:'#8ebdc6',rows:[{chi,eg,layers}]};});
  return {a,b};
 }
-function importData(obj){const {a,b}=validatePayload(obj);if([...metals,...semiconductors].filter(m=>m.id.startsWith('import')).length+a.length+b.length>180)throw Error('The total limit is 180 materials. Reload to clear imported data.');metals.push(...a);semiconductors.push(...b);importCount++;$('metal-search').value='';$('material-search').value='';fillMenus();if(a[0])$('metal').value=a[0].id;if(b[0])$('semi').value=b[0].id;applyMaterial();importStatus(`Imported ${a.length} metal(s) and ${b.length} semiconductor(s). The new materials are now selected.`,false);}
+function importData(obj){const {a,b}=validatePayload(obj);if([...metals,...semiconductors].filter(m=>m.id.startsWith('import')).length+a.length+b.length>180)throw Error('The total limit is 180 materials. Reload to clear imported data.');metals.push(...a);semiconductors.push(...b);importCount++;fillMenus();if(a[0])$('metal').value=a[0].id;if(b[0])$('semi').value=b[0].id;applyMaterial();importStatus(`Imported ${a.length} metal(s) and ${b.length} semiconductor(s). The new materials are now selected.`,false);}
 function importStatus(msg,error){$('import-status').textContent=msg;$('import-status').className='import-status '+(error?'error':'success');}
 $('fetch-data').addEventListener('click',async()=>{
  const url=safeUrl($('import-url').value);if(!url){importStatus('Enter a valid HTTPS JSON URL.',true);return;}
