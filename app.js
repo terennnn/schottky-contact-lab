@@ -86,7 +86,6 @@ function update(){
  $('metal-name').textContent=`Work function ΦM = ${fmt(state.phi)} eV${state.custom?' · Custom':''}`;Notation.tree($('metal-name'));
  sourceLink('metal-source',state.metal.source);sourceLink('semi-source',state.semi.source);
  $('semi-note').textContent=state.semi.dataset==='multilayer'?state.semi.phaseNote:state.semi.record?.origin==='Americo23'?'Self-intercalated bilayer':state.semi.id.startsWith('import')?'Imported data':'C2DB';
- document.querySelector('.method').textContent=state.semi.method||'Custom data';
  $('data-mode').textContent=state.custom?'Custom parameters · Literature values modified':state.metal.id.startsWith('import')||state.semi.id.startsWith('import')?'Imported data':'Literature values · Editable';
  for(const [id,value] of [['bn',model.bn],['bp',model.bp],['eq-bn',model.bn],['eq-delta',model.delta]])$(id).textContent=fmt(value)+(id.startsWith('eq')?' eV':'');
  $('bend').textContent=signed(model.bend);$('eq-bend').textContent=signed(model.bend)+' eV';
