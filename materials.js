@@ -24,3 +24,11 @@ const semiconductors=[...compositionGroups.values()].map((group,i)=>{
  const rows=[...group.records].sort(([a],[b])=>a-b).map(([layers,record])=>({layers,record,chi:-record.cbm,eg:Math.round((record.cbm-record.vbm)*1000)/1000,source:'https://c2db.fysik.dtu.dk/material/'+encodeURIComponent(record.uid)}));
  return {id:'s'+i,name:group.name,zh:'',color:'#72bdc8',source:rows[0].source,method:'PBE',record:rows[0].record,note:'C2DB · Representative PBE calculation',rows};
 });
+
+const MULTILAYER_VALUES={"MoS2":[[4.03,6.42],[4.14,6.03],[4.21,5.88],[4.28,5.83]],"MoSe2":[[3.61,5.69],[3.84,5.57],[3.96,5.44],[4.03,5.41]],"MoTe2":[[3.77,5.31],[4.03,5.26],[4.15,5.24],[4.23,5.21]],"WS2":[[3.62,6.09],[3.81,5.76],[3.93,5.59],[4.0,5.54]],"WSe2":[[3.37,5.38],[3.57,5.29],[3.69,5.14],[3.76,5.1]],"WTe2":[[3.62,5.05],[3.81,5.0],[3.92,4.96],[3.99,4.95]]};
+for(const [name,values] of Object.entries(MULTILAYER_VALUES)){
+ const key=reducedComposition(name).key;
+ let material=semiconductors.find(m=>reducedComposition(m.name).key===key);
+ if(!material){material={id:'tmd-'+name};semiconductors.push(material);}
+ Object.assign(material,{name,zh:'',color:'#72bdc8',source:TMD_SOURCE,method:'G₀W₀ + SOC',record:null,dataset:'multilayer',note:'Kim & Choi (2021), Table 5 · 2H phase · GW + SOC',rows:values.map(([chi,ip],i)=>({layers:i+1,chi,ip,eg:Math.round((ip-chi)*100)/100,source:TMD_SOURCE}))});
+}

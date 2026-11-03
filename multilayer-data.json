@@ -1,0 +1,124 @@
+{
+  "source": "https://arxiv.org/html/2103.07858#S3.T5",
+  "authors": "Han-gyu Kim and Hyoung Joon Choi (2021)",
+  "title": "Thickness dependence of work function, ionization energy, and electron affinity of Mo and W dichalcogenides from DFT and GW calculations",
+  "table": 5,
+  "method": "G0W0 + SOC",
+  "phase": "2H",
+  "units": "eV",
+  "columns": [
+    "electron affinity (EA)",
+    "ionization potential (IP)"
+  ],
+  "layers": "Rows correspond to 1L, 2L, 3L, 4L. No extrapolation. Electronic gap is derived as IP - EA; 0.01 eV differences from rounded tabulated gaps are possible.",
+  "values": {
+    "MoS2": [
+      [
+        4.03,
+        6.42
+      ],
+      [
+        4.14,
+        6.03
+      ],
+      [
+        4.21,
+        5.88
+      ],
+      [
+        4.28,
+        5.83
+      ]
+    ],
+    "MoSe2": [
+      [
+        3.61,
+        5.69
+      ],
+      [
+        3.84,
+        5.57
+      ],
+      [
+        3.96,
+        5.44
+      ],
+      [
+        4.03,
+        5.41
+      ]
+    ],
+    "MoTe2": [
+      [
+        3.77,
+        5.31
+      ],
+      [
+        4.03,
+        5.26
+      ],
+      [
+        4.15,
+        5.24
+      ],
+      [
+        4.23,
+        5.21
+      ]
+    ],
+    "WS2": [
+      [
+        3.62,
+        6.09
+      ],
+      [
+        3.81,
+        5.76
+      ],
+      [
+        3.93,
+        5.59
+      ],
+      [
+        4.0,
+        5.54
+      ]
+    ],
+    "WSe2": [
+      [
+        3.37,
+        5.38
+      ],
+      [
+        3.57,
+        5.29
+      ],
+      [
+        3.69,
+        5.14
+      ],
+      [
+        3.76,
+        5.1
+      ]
+    ],
+    "WTe2": [
+      [
+        3.62,
+        5.05
+      ],
+      [
+        3.81,
+        5.0
+      ],
+      [
+        3.92,
+        4.96
+      ],
+      [
+        3.99,
+        4.95
+      ]
+    ]
+  }
+}
