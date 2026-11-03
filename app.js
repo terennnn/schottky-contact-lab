@@ -85,12 +85,12 @@ function update(){
  $('pair-label').textContent=state.classroom?'Teaching metal / semiconductor · Illustrative':`${state.custom?'Custom ':''}${state.metal.name} / ${chemicalName(state.semi.name)} · ${state.layers}L`;
  $('metal-name').textContent=`Work function ΦM = ${fmt(state.phi)} eV${state.custom?' · Custom':''}`;Notation.tree($('metal-name'));
  sourceLink('metal-source',state.metal.source);sourceLink('semi-source',state.semi.source);
- $('semi-note').textContent=state.semi.dataset==='multilayer'?'2H phase · 1–4L literature data':state.semi.record?.origin==='Americo23'?'Self-intercalated bilayer':state.semi.id.startsWith('import')?'Imported data':'C2DB';
+ $('semi-note').textContent=state.semi.dataset==='multilayer'?state.semi.phaseNote:state.semi.record?.origin==='Americo23'?'Self-intercalated bilayer':state.semi.id.startsWith('import')?'Imported data':'C2DB';
  document.querySelector('.method').textContent=state.semi.method||'Custom data';
  $('data-mode').textContent=state.custom?'Custom parameters · Literature values modified':state.metal.id.startsWith('import')||state.semi.id.startsWith('import')?'Imported data':'Literature values · Editable';
  for(const [id,value] of [['bn',model.bn],['bp',model.bp],['eq-bn',model.bn],['eq-delta',model.delta]])$(id).textContent=fmt(value)+(id.startsWith('eq')?' eV':'');
  $('bend').textContent=signed(model.bend);$('eq-bend').textContent=signed(model.bend)+' eV';
- $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${chemicalName(state.semi.name)} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Material ΦS = χ + Δn = ${fmt(model.phiS)} eV. Method: ${state.semi.method||'Imported'}. ${state.semi.dataset==='multilayer'?'Kim & Choi (2021), Table 5; 2H phase; Eg = IP − EA.':'C2DB representative calculation.'}${state.custom?' Manually edited: custom values are shown.':''}`;
+ $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${chemicalName(state.semi.name)} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Material ΦS = χ + Δn = ${fmt(model.phiS)} eV. Method: ${state.semi.method||'Imported'}. ${state.semi.dataset==='multilayer'?state.semi.sourceNote:'C2DB representative calculation.'}${state.custom?' Manually edited: custom values are shown.':''}`;
  Notation.tree($('current-source'));
  updateStage();renderPlot();renderAtoms();
 }

@@ -1,0 +1,34 @@
+{
+  "source": "https://arxiv.org/abs/1409.8418",
+  "pdf": "https://arxiv.org/pdf/1409.8418",
+  "publication": "Cai, Zhang & Zhang (2014), Scientific Reports 4, 6677",
+  "doi": "10.1038/srep06677",
+  "material": "Black phosphorus / phosphorene (BP)",
+  "method": "HSE06 on optB88-vdW relaxed geometry",
+  "location": "Band-alignment discussion (arXiv pp. 6\u20137) and Figure 5",
+  "units": "eV relative to vacuum",
+  "rows": [
+    {
+      "layers": 1,
+      "cbm": -3.91,
+      "vbm": -5.43,
+      "chi": 3.91,
+      "eg": 1.52
+    },
+    {
+      "layers": 3,
+      "cbm": -4.09,
+      "vbm": -4.85,
+      "chi": 4.09,
+      "eg": 0.76
+    },
+    {
+      "layers": 5,
+      "cbm": -4.13,
+      "vbm": -4.7,
+      "chi": 4.13,
+      "eg": 0.57
+    }
+  ],
+  "derivation": "chi = -CBM; eg = CBM - VBM. Explicit prose values only; no interpolation, graph digitization, or fitted-gap substitution."
+}
