@@ -38,7 +38,7 @@
   s+=label(72,Y(0)-10,'EF,M = 0','#c5d1d8',12)+label(682,Y(ec(1))+4,'EC','#69c9e0',13)+label(682,Y(ec(1)-1.4)+4,'EV','#e4b777',13)+label(682,Y(efS)+4,p>.999?'EF':'EF,S','#c5d1d8',12);
   s+=label(57,365,'Electron energy ↑', '#93a7b1',11)+label(670,365,'In-plane position →', '#93a7b1',11,'end');
   if(step!==1){
-   s+=arrow(sx+24,Y(0),Y(bn),'#69c9e0',`ΦBn = ${bn.toFixed(2)} eV`);
+   s+=arrow(sx,Y(0),Y(bn),'#69c9e0',`ΦBn = ${bn.toFixed(2)} eV`,-1);
    if(step===2){
     s+=`<path d="M${sx+80} ${Y(.2)}H${sx+w*.62}" stroke="#97cbb6" stroke-dasharray="3 4"/>`;
     s+=arrow(sx+w*.53,Y(.2),Y(bn),'#97cbb6',`B = ${bend.toFixed(2)}`);
