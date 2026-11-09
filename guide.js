@@ -12,7 +12,7 @@
  const label=(x,y,t,c='#93a7b1',size=12,anchor='start')=>`<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}">${Notation.svg(t)}</text>`;
  function arrow(x,a,b,color,t,side=1){const lo=Math.min(a,b),hi=Math.max(a,b);return `<path d="M${x} ${lo}V${hi} M${x-4} ${lo+6}L${x} ${lo}L${x+4} ${lo+6} M${x-4} ${hi-6}L${x} ${hi}L${x+4} ${hi-6}" stroke="${color}" stroke-width="2" fill="none"/>`+label(x+side*10,(lo+hi)/2+4,t,color,12,side===1?'start':'end');}
  function formation(i){
-  const a=loops[i],up=a.direction===1,cycle=a.time%10,p=Math.max(0,Math.min(1,(cycle-1.5)/5)),b=up?.6:-.6;
+  const a=loops[i],up=a.direction===1,cycle=a.time%10.5,p=Math.max(0,Math.min(1,(cycle-1.5)/7)),b=up?.6:-.6;
   const y=e=>120-e*58,sx=170+28*(1-p),end=530;
   const ec=z=>.8+(1-p)*b+p*b*(1-z)**2,efS=(1-p)*b;
   const path=shift=>Array.from({length:65},(_,j)=>`${j?"L":"M"}${sx+(end-sx)*j/64},${y(ec(j/64)+shift)}`).join(" " );
