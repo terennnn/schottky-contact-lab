@@ -12,7 +12,7 @@
  const label=(x,y,t,c='#93a7b1',size=12,anchor='start')=>`<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}">${Notation.svg(t)}</text>`;
  function arrow(x,a,b,color,t,side=1){const lo=Math.min(a,b),hi=Math.max(a,b);return `<path d="M${x} ${lo}V${hi} M${x-4} ${lo+6}L${x} ${lo}L${x+4} ${lo+6} M${x-4} ${hi-6}L${x} ${hi}L${x+4} ${hi-6}" stroke="${color}" stroke-width="2" fill="none"/>`+label(x+side*10,(lo+hi)/2+4,t,color,12,side===1?'start':'end');}
  function formation(i){
-  const a=loops[i],up=a.direction===1,cycle=a.time%10.5,p=Math.max(0,Math.min(1,(cycle-1.5)/7)),b=up?.6:-.6;
+  const a=loops[i],up=a.direction===1,cycle=a.running?a.time%10.5:Math.min(a.time,10.5),p=Math.max(0,Math.min(1,(cycle-1.5)/7)),b=up?.6:-.6;
   const y=e=>120-e*58,sx=170+28*(1-p),end=530;
   const ec=z=>.8+(1-p)*b+p*b*(1-z)**2,efS=(1-p)*b;
   const path=shift=>Array.from({length:65},(_,j)=>`${j?"L":"M"}${sx+(end-sx)*j/64},${y(ec(j/64)+shift)}`).join(" " );
@@ -23,7 +23,7 @@
   if(p>0){for(let j=0;j<4;j++)v+=label(156,155+j*27,up?"−":"+","#e4b777",18,"middle")+label(sx+15,155+j*27,up?"+":"−","#97cbb6",18,"middle");}
   if(p>0&&p<1){for(let j=0;j<5;j++){const t=(a.time*.4+j/5)%1,x=up?440-t*340:100+t*340;v+=`<circle cx="${x}" cy="${53+Math.sin(t*Math.PI)*8}" r="3.5" fill="#a1e5f5"/>`;}}
   v+=label(280,297,p===0?"Before contact · different Fermi levels":p===1?"Equilibrium · common EF · zero net current":up?"Electrons: material → metal":"Electrons: metal → material","#c5d1d8",14,"middle");
-  get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
+  const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',`${cycle.toFixed(1)} seconds of 10.5 seconds`);get(`formation-clock-${i}`).textContent=`${cycle.toFixed(1)} / 10.5 s`;get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
  }
  function render(){
   const p=step===1?phase:1,bn=phi-4,bend=bn-.2,efS=(1-p)*bend;
@@ -64,7 +64,8 @@
  get('concept-replay').addEventListener('click',()=>{if(phase>=1)phase=0;playing=!playing;paused=false;render();});
  get('concept-progress').addEventListener('input',()=>{phase=Number(get('concept-progress').value);playing=false;render();});
  document.querySelectorAll('[data-concept-phi]').forEach(b=>b.addEventListener('click',()=>{phi=Number(b.dataset.conceptPhi);document.querySelectorAll('[data-concept-phi]').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));render();}));
- document.querySelectorAll('[data-formation-pause]').forEach(button=>button.addEventListener('click',()=>{const a=loops[Number(button.dataset.formationPause)];a.running=!a.running;button.textContent=a.running?'Pause animation':'Play animation';button.setAttribute('aria-pressed',String(!a.running));}));
+ document.querySelectorAll('[data-formation-pause]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset.formationPause),a=loops[i];if(a.running)a.time%=10.5;a.running=!a.running;button.textContent=a.running?'Pause animation':'Play animation';button.setAttribute('aria-pressed',String(!a.running));formation(i);}));
+ document.querySelectorAll('[data-formation-time]').forEach(input=>input.addEventListener('input',()=>{const i=Number(input.dataset.formationTime),a=loops[i];if(a.running)return;a.time=Number(input.value);formation(i);}));
  loops.forEach((a,i)=>{formation(i);const button=document.querySelector(`[data-formation-pause="${i}"]`);button.textContent=a.running?'Pause animation':'Play animation';button.setAttribute('aria-pressed',String(!a.running));});
  // Keep the guide's controls independent from the full experiment.
  function animate(t){const dt=last?Math.min((t-last)/1000,.06):0;last=t;if(step===1&&!document.hidden){loops.forEach((a,i)=>{if(a.running)a.time+=dt;});if(t-drawn>33){drawn=t;loops.forEach((_,i)=>formation(i));}}if(playing&&!paused&&!document.hidden){phase=Math.min(1,phase+dt/6);elapsed+=dt;if(phase===1)playing=false;if(t-drawn>33){drawn=t;render();}}requestAnimationFrame(animate);}
