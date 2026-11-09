@@ -18,3 +18,17 @@ body,button,input,select,textarea,svg text,pre,code{font-family:"Times New Roman
 .material-combo{position:relative;margin-bottom:8px}.material-combo input{width:100%;min-width:0;box-sizing:border-box;background:#202a30;color:var(--text);border:1px solid #48545b;border-radius:6px;padding:12px 35px 12px 12px;font:inherit;font-size:14px}.combo-toggle{position:absolute;right:1px;top:1px;bottom:1px;width:32px;border:0;background:transparent;color:var(--text);font-size:18px;border-radius:5px}.combo-options{position:absolute;z-index:50;top:calc(100% + 4px);left:0;right:0;max-height:260px;overflow-y:auto;background:#202a30;border:1px solid #61747f;border-radius:6px;box-shadow:0 12px 28px #0008}.combo-options[hidden]{display:none}.combo-options [role=option]{padding:10px 12px;cursor:pointer;line-height:1.45;overflow-wrap:anywhere;font-size:14px}.combo-options [role=option]:hover,.combo-options [role=option].active{background:#364c56}.combo-options [aria-selected=true]{color:var(--accent)}.combo-empty{padding:12px;color:var(--muted);font-size:13px}select[hidden]{display:none!important}
 
 .combo-options [role=option]>span{display:block}.combo-options [role=option]>small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+
+/* Larger reading text, preserving the Times New Roman typography. */
+body{font-size:16px}
+.intro p,.concept-lead,.concept-copy p,.notes-grid p,.limits p{font-size:16px;line-height:1.85}
+.concept-copy .concept-takeaway,.data-grid p,.section-top p,.experiment-divider p{font-size:15px;line-height:1.85}
+.concept-glossary p,.concept-glossary article>span,.concept-bottom,.stage-text,.source-links,.source-detail{font-size:14px}
+.select-label,.slider-block label,.tuning label,.layer-control>label,summary{font-size:14px}
+.select-label span,.slider-block label span,.tuning label span,.segmented small{font-size:12px}
+.material-meta,.catalog-note,.tuning p,.range-caption,.control-foot,.metric-foot,.atom-foot,.atom-title>span,.concept-caption{font-size:13px;line-height:1.7}
+.material-combo input,.combo-options [role=option],select{font-size:16px}
+.combo-empty,.outline-btn,.source-links,.import-actions,input[type=url],.concept-tabs button,.text-btn{font-size:14px}
+.plot-toolbar,.plot-toolbar label,.plot-key,.timeline-label,.timeline-steps button,.motion-btn,.metric-label,.metrics article>div:last-child,.equation-panel small{font-size:12px}
+.data-grid pre{font-size:13px}.concept-chip{font-size:12px}.concept-formula{font-size:21px}h3{font-size:18px}
+@media(max-width:760px){.intro p,.concept-lead,.concept-copy p,.notes-grid p,.limits p{font-size:16px}.concept-copy .concept-takeaway,.data-grid p{font-size:15px}.concept-tabs button{font-size:13px}.concept-bottom{font-size:13px}.catalog-note,.material-meta{font-size:13px}.plot-toolbar{flex-wrap:wrap}.stage-text{font-size:14px}.regime{white-space:normal;line-height:1.4}.metric-label{font-size:12px}.plot-key{font-size:12px}}
