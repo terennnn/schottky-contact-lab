@@ -23,7 +23,7 @@
   if(p>0){for(let j=0;j<4;j++)v+=label(156,155+j*27,up?"−":"+","#e4b777",18,"middle")+label(sx+15,155+j*27,up?"+":"−","#97cbb6",18,"middle");}
   if(p>0&&p<1){for(let j=0;j<5;j++){const t=(a.time*.4+j/5)%1,x=up?440-t*340:100+t*340;v+=`<circle cx="${x}" cy="${53+Math.sin(t*Math.PI)*8}" r="3.5" fill="#a1e5f5"/>`;}}
   v+=label(280,297,p===0?"Before contact · different Fermi levels":p===1?"Equilibrium · common EF · zero net current":up?"Electrons: material → metal":"Electrons: metal → material","#c5d1d8",14,"middle");
-  const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',`${cycle.toFixed(1)} seconds of 10.5 seconds`);get(`formation-clock-${i}`).textContent=`${cycle.toFixed(1)} / 10.5 s`;get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
+  const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',p===0?'Before contact':p===1?'Equilibrium':'Charge transfer');get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
  }
  function render(){
   const p=step===1?phase:1,bn=phi-4,bend=bn-.2,efS=(1-p)*bend;
