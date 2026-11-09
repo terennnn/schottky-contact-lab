@@ -26,6 +26,7 @@
   const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',p===0?'Before contact':p===1?'Equilibrium':'Charge transfer');get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
  }
  function render(){
+  if(step===2){const bn=phi-4,b=bn-.2;get('arrow-definitions').querySelectorAll('p')[0].innerHTML=Notation.html('ΦBn · Electron Schottky barrier')+'<br>'+Notation.html('From the common EF to the conduction-band edge at the interface, EC(0).')+'<br>'+Notation.html(`ΦBn = EC(0) − EF = ${bn.toFixed(2)} eV`);get('arrow-definitions').querySelectorAll('p')[2].innerHTML=Notation.html('B · Signed band bending')+'<br>'+Notation.html('From EC(channel) to EC(0). Positive B means bend up; negative B means bend down.')+'<br>'+Notation.html(`B = EC(0) − EC(channel) = +${b.toFixed(2)} eV`);}
   const p=step===1?phase:1,bn=phi-4,bend=bn-.2,efS=(1-p)*bend;
   const sx=230+48*(1-p),end=670,w=end-sx,Y=e=>76+(1.3-e)/2.9*250;
   const ec=z=>.2+(1-p)*bend+p*bend*Math.max(1-z/.65,0)**2;
@@ -53,7 +54,7 @@
   get('concept-diagram').innerHTML=s;
   if(step===1){get('concept-phase-label').textContent=phase<.001?'Before contact':phase>.999?'Equilibrium':'Charge redistributes';get('concept-replay').textContent=playing?'Pause sequence':phase>.999?'Replay sequence':'Play sequence';get('concept-progress').value=phase;}
  }
- function select(n){step=n;playing=false;phi=4.8;phase=n===1?0:1;get('concept-title').innerHTML=Notation.html(copy[n].title);get('concept-body').innerHTML=Notation.html(copy[n].body);get('concept-formula').innerHTML=Notation.html(copy[n].formula);get('concept-takeaway').innerHTML=Notation.html(copy[n].takeaway);
+ function select(n){step=n;playing=false;phi=4.8;phase=n===1?0:1;get('concept-title').innerHTML=Notation.html(copy[n].title);get('concept-body').innerHTML=Notation.html(copy[n].body);get('concept-formula').innerHTML=Notation.html(copy[n].formula);get('concept-takeaway').innerHTML=Notation.html(copy[n].takeaway);get('arrow-definitions').hidden=n!==2;
   document.querySelectorAll('[data-concept]').forEach(b=>{const active=Number(b.dataset.concept)===n;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
   get('concept-sequence').hidden=true;get('formation-pair').hidden=n!==1;get('concept-diagram').parentElement.hidden=n===1;get('concept-diagram').closest('.concept-visual').querySelector('.concept-caption').hidden=n===1;document.querySelector('.concept-content').classList.toggle('formation-view',n===1);get('concept-comparison').hidden=n!==2;
   document.querySelectorAll('[data-concept-phi]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.conceptPhi)===phi)));
