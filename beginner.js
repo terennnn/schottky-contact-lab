@@ -3,18 +3,18 @@
  const el=id=>document.getElementById(id);
  let focus='chi',tour=-1;
  const meanings={chi:['χ · Electron affinity','From the conduction-band edge to vacuum, at the same position. χ = Evac − EC.'],metal:['ΦM · Metal work function','From the metal Fermi level to its vacuum level. ΦM = Evac − EF,M.'],semi:['ΦS · Material work function','From the remote material Fermi level to its vacuum level. It depends on the carrier state.'],barrier:['ΦBn · Electron barrier','From the common Fermi level to the conduction band at the interface. ΦBn = EC(0) − EF.'],bend:['B · Band bending','Compare the interface and remote conduction-band edges. B = EC(0) − EC(channel). Positive means bend up.']};
- const txt=(x,y,t,color='#c5d1d8',size=14)=>`<text x="${x}" y="${y}" fill="${color}" font-size="${size}">${Notation.svg(t)}</text>`;
+ const txt=(x,y,t,color='#575248',size=14)=>`<text x="${x}" y="${y}" fill="${color}" font-size="${size}">${Notation.svg(t)}</text>`;
  function diagram(before){
   const Y=e=>300-e*40,sx=before?200:180,end=590;
   const E=x=>before?.8:.2+.6*Math.max(1-(x-sx)/280,0)**2;
   const path=d=>Array.from({length:61},(_,i)=>`${i?'L':'M'}${sx+(end-sx)*i/60},${Y(E(sx+(end-sx)*i/60)+d)}`).join(' ');
   const edge=(x,a,b,key,label,color)=>{const active=focus===key;return `<g opacity="${active?1:.18}"><path d="M${x} ${Y(a)}V${Y(b)} M${x-4} ${Y(a)+6}L${x} ${Y(a)}L${x+4} ${Y(a)+6} M${x-4} ${Y(b)-6}L${x} ${Y(b)}L${x+4} ${Y(b)-6}" fill="none" stroke="${color}" stroke-width="${active?3:1.5}"/>${txt(x+9,Y((a+b)/2),label,color,active?16:13)}</g>`;};
-  let s=`<title>${before?'Before contact':'At equilibrium'}: illustrated n-type contact</title><rect x="20" y="70" width="160" height="310" fill="#26343c"/><rect x="${sx}" y="70" width="${end-sx}" height="310" fill="#17262b"/>`;
-  s+=txt(50,45,'METAL','#e4b777')+txt(330,45,'n-TYPE MATERIAL','#69c9e0');
-  s+=`<path d="M20 ${Y(4.8)}H180" stroke="#c7a6ee" stroke-dasharray="5 4"/><path d="${path(4)}" fill="none" stroke="#c7a6ee" stroke-width="2" stroke-dasharray="5 4"/><path d="${path(0)}" fill="none" stroke="#69c9e0" stroke-width="3"/><path d="${path(-1.4)}" fill="none" stroke="#e4b777" stroke-width="3"/><path d="M20 ${Y(0)}H180 M${sx} ${Y(before?.6:0)}H590" stroke="#c5d1d8" stroke-dasharray="6 5"/>`;
-  s+=txt(595,Y(E(end)+4)+4,'Evac','#c7a6ee',13)+txt(595,Y(E(end))+4,'EC','#69c9e0')+txt(595,Y(E(end)-1.4)+4,'EV','#e4b777')+txt(25,Y(0)+19,'EF,M',undefined,12)+txt(595,Y(before?.6:0)+18,before?'EF,S':'EF',undefined,12);
-  s+=edge(65,4.8,0,'metal','ΦM','#e4b777')+edge(480,E(480)+4,E(480),'chi','χ','#c7a6ee')+edge(555,E(end)+4,before?.6:0,'semi','ΦS','#97cbb6');
-  if(!before){s+=edge(180,.8,0,'barrier','ΦBn','#69c9e0')+edge(335,.8,.2,'bend','B','#97cbb6');s+=`<path d="M270 ${Y(.2)}H420" stroke="#97cbb6" stroke-dasharray="3 4" opacity=".5"/>`;}
+  let s=`<title>${before?'Before contact':'At equilibrium'}: illustrated n-type contact</title><rect x="20" y="70" width="160" height="310" fill="#e5ded2"/><rect x="${sx}" y="70" width="${end-sx}" height="310" fill="#edf2ed"/>`;
+  s+=txt(50,45,'METAL','#9a5a18')+txt(330,45,'n-TYPE MATERIAL','#116777');
+  s+=`<path d="M20 ${Y(4.8)}H180" stroke="#78529b" stroke-dasharray="5 4"/><path d="${path(4)}" fill="none" stroke="#78529b" stroke-width="2" stroke-dasharray="5 4"/><path d="${path(0)}" fill="none" stroke="#116777" stroke-width="3"/><path d="${path(-1.4)}" fill="none" stroke="#9a5a18" stroke-width="3"/><path d="M20 ${Y(0)}H180 M${sx} ${Y(before?.6:0)}H590" stroke="#575248" stroke-dasharray="6 5"/>`;
+  s+=txt(595,Y(E(end)+4)+4,'Evac','#78529b',13)+txt(595,Y(E(end))+4,'EC','#116777')+txt(595,Y(E(end)-1.4)+4,'EV','#9a5a18')+txt(25,Y(0)+19,'EF,M',undefined,12)+txt(595,Y(before?.6:0)+18,before?'EF,S':'EF',undefined,12);
+  s+=edge(65,4.8,0,'metal','ΦM','#9a5a18')+edge(480,E(480)+4,E(480),'chi','χ','#78529b')+edge(555,E(end)+4,before?.6:0,'semi','ΦS','#316c50');
+  if(!before){s+=edge(180,.8,0,'barrier','ΦBn','#116777')+edge(335,.8,.2,'bend','B','#316c50');s+=`<path d="M270 ${Y(.2)}H420" stroke="#316c50" stroke-dasharray="3 4" opacity=".5"/>`;}
   s+=txt(20,415,'Energy ↑ · position → · schematic scale',undefined,12);
   return s;
  }

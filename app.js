@@ -107,12 +107,12 @@ function updateStage(){
  $('stage-text').innerHTML=Notation.html(text);
  $('charge-direction').textContent=Math.abs(model.bend)<.015?'Similar work functions · Little initial net transfer':eq?'Equilibrium: bidirectional exchange, zero net current':`Initial net transfer: ${model.bend>0?'semiconductor → metal':'metal → semiconductor'}`;
 }
-const C={cyan:'#69c9e0',amber:'#e4b777',mint:'#97cbb6',muted:'#83959f',text:'#dce7ec'};
+const C={cyan:'#116777',amber:'#9a5a18',mint:'#316c50',muted:'#6c6357',text:'#302b24'};
 function text(x,y,label,color=C.muted,size=12,anchor='start',extra=''){return `<text x="${x}" y="${y}" fill="${color}" font-size="${size}" text-anchor="${anchor}" ${extra}>${Notation.svg(label)}</text>`;}
 function line(x1,y1,x2,y2,color,width=1,dash=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;}
 function arrow(x,y1,y2,color,label,side=1){
  const a=Math.min(y1,y2),b=Math.max(y1,y2);if(b-a<5)return '';
- return line(x,a,x,b,color,1.6)+`<path d="M${x-4} ${a+6} L${x} ${a} L${x+4} ${a+6} M${x-4} ${b-6} L${x} ${b} L${x+4} ${b-6}" fill="none" stroke="${color}" stroke-width="1.6"/>`+text(x+side*9,(a+b)/2+4,label,color,11,side>0?'start':'end',`paint-order="stroke" stroke="#131a20" stroke-width="5" stroke-linejoin="round"`);
+ return line(x,a,x,b,color,1.6)+`<path d="M${x-4} ${a+6} L${x} ${a} L${x+4} ${a+6} M${x-4} ${b-6} L${x} ${b} L${x+4} ${b-6}" fill="none" stroke="${color}" stroke-width="1.6"/>`+text(x+side*9,(a+b)/2+4,label,color,11,side>0?'start':'end',`paint-order="stroke" stroke="#fffaf1" stroke-width="5" stroke-linejoin="round"`);
 }
 function renderPlot(){
  const p=state.p,m=model,eq=p>=.999,showVac=true;
@@ -124,23 +124,23 @@ function renderPlot(){
  const E=z=>ContactPhysics.bandAt(z,p,m,scaleLength);
  const curve=(shift=0)=>Array.from({length:121},(_,i)=>`${i?'L':'M'}${(sx+width*i/120).toFixed(2)},${Y(E(i/120)+shift).toFixed(2)}`).join(' ');
  const zoneEnd=sx+width*Math.min(scaleLength,1);
- let s=`<title>Ideal metal–2D semiconductor band diagram</title><desc>Contact progress ${Math.round(p*100)}%. Electron barrier ${fmt(m.bn)} eV, hole barrier ${fmt(m.bp)} eV, band bending ${fmt(m.bend)} eV. Horizontal axis: schematic position.</desc><defs><linearGradient id="zone"><stop stop-color="${m.regime==='accumulation'?C.cyan:C.amber}" stop-opacity=".12"/><stop offset="1" stop-color="${C.amber}" stop-opacity=".015"/></linearGradient><linearGradient id="metalGrad" x2="1" y2="0"><stop stop-color="#30404a" stop-opacity=".3"/><stop offset="1" stop-color="#30404a" stop-opacity=".65"/></linearGradient></defs>`;
- s+=`<rect x="80" y="62" width="228" height="300" fill="url(#metalGrad)"/><rect x="${sx}" y="62" width="${end-sx}" height="300" fill="#19242a" fill-opacity=".2"/>`;
+ let s=`<title>Ideal metal–2D semiconductor band diagram</title><desc>Contact progress ${Math.round(p*100)}%. Electron barrier ${fmt(m.bn)} eV, hole barrier ${fmt(m.bp)} eV, band bending ${fmt(m.bend)} eV. Horizontal axis: schematic position.</desc><defs><linearGradient id="zone"><stop stop-color="${m.regime==='accumulation'?C.cyan:C.amber}" stop-opacity=".12"/><stop offset="1" stop-color="${C.amber}" stop-opacity=".015"/></linearGradient><linearGradient id="metalGrad" x2="1" y2="0"><stop stop-color="#c8bcaa" stop-opacity=".3"/><stop offset="1" stop-color="#c8bcaa" stop-opacity=".65"/></linearGradient></defs>`;
+ s+=`<rect x="80" y="62" width="228" height="300" fill="url(#metalGrad)"/><rect x="${sx}" y="62" width="${end-sx}" height="300" fill="#e4e9df" fill-opacity=".2"/>`;
  if(p>.01&&m.regime!=='flat')s+=`<rect x="${sx}" y="62" width="${zoneEnd-sx}" height="300" fill="url(#zone)" opacity="${p}"/>`;
- for(let e=Math.ceil(emin*2)/2;e<=emax;e+=.5){const y=Y(e);s+=line(70,y,890,y,'#2a3740',.7,'2 6')+text(61,y+4,fmt(e),'#657985',10,'end');}
- s+=line(70,355,70,65,'#657985')+text(36,48,'E (eV)',C.muted,11)+text(80,31,`${state.classroom?'Teaching metal':state.metal.name} · METAL`,C.amber,11)+text(sx+15,31,`${state.classroom?'Teaching semiconductor':chemicalName(state.semi.name)} · ${state.layers}L · ${state.type}-TYPE`,C.cyan,11);
- s+=line(308,62,308,362,'#556570',1)+line(sx,62,sx,362,'#556570',1);
+ for(let e=Math.ceil(emin*2)/2;e<=emax;e+=.5){const y=Y(e);s+=line(70,y,890,y,'#d6cbbb',.7,'2 6')+text(61,y+4,fmt(e),'#807462',10,'end');}
+ s+=line(70,355,70,65,'#807462')+text(36,48,'E (eV)',C.muted,11)+text(80,31,`${state.classroom?'Teaching metal':state.metal.name} · METAL`,C.amber,11)+text(sx+15,31,`${state.classroom?'Teaching semiconductor':chemicalName(state.semi.name)} · ${state.layers}L · ${state.type}-TYPE`,C.cyan,11);
+ s+=line(308,62,308,362,'#a28e72',1)+line(sx,62,sx,362,'#a28e72',1);
  const cb=curve(),vb=curve(-state.eg);
  s+=`<path class="band-line" d="${cb}" fill="none" stroke="${C.cyan}" stroke-width="2.8"/><path d="${vb}" fill="none" stroke="${C.amber}" stroke-width="2.8"/>`;
- s+=line(80,Y(0),308,Y(0),'#b4c4cd',1.5,'6 5')+line(sx,Y(efS),end,Y(efS),'#b4c4cd',1.5,'6 5');
- if(eq)s+=line(308,Y(0),sx,Y(0),'#b4c4cd',1.5,'6 5');
+ s+=line(80,Y(0),308,Y(0),'#625b51',1.5,'6 5')+line(sx,Y(efS),end,Y(efS),'#625b51',1.5,'6 5');
+ if(eq)s+=line(308,Y(0),sx,Y(0),'#625b51',1.5,'6 5');
  s+=text(95,Y(0)-9,'EF,M = 0',C.text,11)+text(871,Y(cbBulk)+4,'EC',C.cyan,12)+text(871,Y(cbBulk-state.eg)+4,'EV',C.amber,12)+text(871,Y(efS)+4,eq?'EF':'EF,S',C.text,12);
- if(showVac){s+=arrow(690,Y(E((690-sx)/width)+state.chi),Y(E((690-sx)/width)),'#c7a6ee',`χ = ${fmt(state.chi)} eV`,-1)+line(80,Y(state.phi),308,Y(state.phi),'#a6a7c8',1,'3 4')+`<path d="${curve(state.chi)}" fill="none" stroke="#a6a7c8" stroke-dasharray="3 4"/>`+text(871,Y(cbBulk+state.chi)+4,'Evac','#a6a7c8',11);}
+ if(showVac){s+=arrow(690,Y(E((690-sx)/width)+state.chi),Y(E((690-sx)/width)),'#78529b',`χ = ${fmt(state.chi)} eV`,-1)+line(80,Y(state.phi),308,Y(state.phi),'#78529b',1,'3 4')+`<path d="${curve(state.chi)}" fill="none" stroke="#78529b" stroke-dasharray="3 4"/>`+text(871,Y(cbBulk+state.chi)+4,'Evac','#78529b',11);}
  if(eq){
   const ymaj=state.type==='n'?Y(cb0):Y(cb0-state.eg);
   s+=arrow(sx+24,Y(0),ymaj,state.type==='n'?C.cyan:C.amber,`${state.type==='n'?'ΦBn':'ΦBp'} ${fmt(m.majority)}`);
   s+=arrow(765,Y(0),state.type==='n'?Y(cbBulk):Y(cbBulk-state.eg),C.amber,`${state.type==='n'?'Δn':'Δp'} ${fmt(state.offset)}`,-1);
-  s+=line(sx+width*.3,Y(cbBulk),sx+width*.56,Y(cbBulk),'#75877c',1,'3 4');
+  s+=line(sx+width*.3,Y(cbBulk),sx+width*.56,Y(cbBulk),'#8a9a7b',1,'3 4');
   s+=arrow(sx+width*.46,Y(cb0),Y(cbBulk),C.mint,`B ${signed(m.bend)}`);
  }else if(p<.01){
   if(showVac){s+=arrow(180,Y(state.phi),Y(0),C.amber,`ΦM ${fmt(state.phi)}`);}
@@ -148,7 +148,7 @@ function renderPlot(){
   s+=text(344,390,'No charge exchange yet',C.muted,10,'middle');
  }
  if(p>.01&&m.regime!=='flat'){
-  s+=line(sx,380,zoneEnd,380,'#677c76',1)+line(sx,376,sx,384,'#677c76')+line(zoneEnd,376,zoneEnd,384,'#677c76');
+  s+=line(sx,380,zoneEnd,380,'#7c8b74',1)+line(sx,376,sx,384,'#7c8b74')+line(zoneEnd,376,zoneEnd,384,'#7c8b74');
   s+=text((sx+zoneEnd)/2,400,m.regime==='accumulation'?'Accumulation · Schematic scale':m.inverted?'Space charge / possible inversion · Schematic':'Depletion · Schematic scale',C.muted,10,'middle');
  }
  s+=text(830,421,'Channel direction x →',C.muted,10,'end')+text(190,400,'Metal reservoir approximation',C.muted,10,'middle');
@@ -161,8 +161,8 @@ function renderPlot(){
  }
  if(pointer&&pointer.x>=sx&&pointer.x<=end&&pointer.y>=60&&pointer.y<365){
   const z=(pointer.x-sx)/width,ec=E(z),px=pointer.x;
-  s+=line(px,65,px,355,'#a7bbc4',1,'3 4')+`<circle cx="${px}" cy="${Y(ec)}" r="4" fill="${C.cyan}"/>`;
-  const tx=Math.min(px+10,680);s+=`<rect x="${tx}" y="42" width="180" height="27" rx="4" fill="#25343e" stroke="#49616e"/>`+text(tx+9,60,`EC(x) = ${fmt(ec)} eV`,C.text,11);
+  s+=line(px,65,px,355,'#6e665a',1,'3 4')+`<circle cx="${px}" cy="${Y(ec)}" r="4" fill="${C.cyan}"/>`;
+  const tx=Math.min(px+10,680);s+=`<rect x="${tx}" y="42" width="180" height="27" rx="4" fill="#ddd1bf" stroke="#b6a88f"/>`+text(tx+9,60,`EC(x) = ${fmt(ec)} eV`,C.text,11);
  }
  $('bands').innerHTML=s;
 }
@@ -172,27 +172,27 @@ function renderAtoms(){
  if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);}
  const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
  const p=state.p,b=w*.36,gap=32*(1-p),right=b+gap;
- ctx.fillStyle='#141c21';ctx.fillRect(0,0,w,h);
- const glow=ctx.createRadialGradient(right,95,0,right,95,w*.4);glow.addColorStop(0,'#e4b7770c');glow.addColorStop(1,'#e4b77700');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+ ctx.fillStyle='#f7f0e4';ctx.fillRect(0,0,w,h);
+ const glow=ctx.createRadialGradient(right,95,0,right,95,w*.4);glow.addColorStop(0,'#9a5a180c');glow.addColorStop(1,'#9a5a1800');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
  // Metal electrode: a compact lattice with subtle thermal motion.
  const cols=Math.max(4,Math.floor(w*.3/26)),cw=(b-45)/cols;
  const metalAtoms=[];
  for(let row=0;row<4;row++)for(let col=0;col<cols;col++)metalAtoms.push([30+col*cw+(row%2)*8,50+row*25]);
- ctx.strokeStyle='#e4b77720';ctx.lineWidth=1;
+ ctx.strokeStyle='#9a5a1820';ctx.lineWidth=1;
  for(const [x,y]of metalAtoms){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(Math.min(x+cw,b-10),y);ctx.stroke();}
  for(let i=0;i<metalAtoms.length;i++){const [x,y]=metalAtoms[i];const dy=Math.sin(clock*1.4+i)*.65;
-  const grad=ctx.createRadialGradient(x-2,y+dy-2,0,x,y+dy,6);grad.addColorStop(0,'#ead7a8');grad.addColorStop(1,state.metal.color||'#c0a46d');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(x,y+dy,5.4,0,Math.PI*2);ctx.fill();}
+  const grad=ctx.createRadialGradient(x-2,y+dy-2,0,x,y+dy,6);grad.addColorStop(0,'#d2a65e');grad.addColorStop(1,state.metal.color||'#8b6b36');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(x,y+dy,5.4,0,Math.PI*2);ctx.fill();}
  // Two-dimensional in-plane lattice. Bonds and chalcogen / transition-metal sites.
  const pts=[],step=Math.max(25,(w-right-30)/13);
  for(let row=0;row<4;row++)for(let col=0;col<14;col++){const x=right+18+col*step+(row%2)*step/2;if(x>w-18)continue;pts.push({x,y:52+row*23,row,col});}
- ctx.strokeStyle='#72bdc836';
+ ctx.strokeStyle='#28748636';
  for(const a of pts)for(const b2 of pts){const dx=a.x-b2.x,dy=a.y-b2.y;if(dx*dx+dy*dy<step*step*1.15&&dx*dx+dy*dy>10){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b2.x,b2.y);ctx.stroke();}}
- for(const a of pts){const y=a.y+Math.sin(clock*1.7+a.col*.5+a.row)*.6;ctx.fillStyle=(a.row+a.col)%3===0?'#d7e3df':state.semi.color||'#72bdc8';ctx.globalAlpha=(a.row+a.col)%3===0?.9:.65;ctx.beginPath();ctx.arc(a.x,y,(a.row+a.col)%3===0?4.5:3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+ for(const a of pts){const y=a.y+Math.sin(clock*1.7+a.col*.5+a.row)*.6;ctx.fillStyle=(a.row+a.col)%3===0?'#52715e':state.semi.color||'#287486';ctx.globalAlpha=(a.row+a.col)%3===0?.9:.65;ctx.beginPath();ctx.arc(a.x,y,(a.row+a.col)%3===0?4.5:3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
  // Excess interface charge and countercharge: signs follow electron transfer.
  if(p>.02&&Math.abs(model.bend)>.015){ctx.font='12px Times New Roman, Times, serif';const count=7;
   for(let i=0;i<count;i++){const yy=43+i*16;ctx.globalAlpha=p*.8;ctx.fillStyle=C.amber;ctx.fillText(model.bend>0?'−':'+',b-9,yy);ctx.fillStyle=C.mint;ctx.fillText(model.bend>0?'+':'−',right+12,yy);}
   ctx.globalAlpha=1;
-  if(p<.999){ctx.strokeStyle='#97cbb650';ctx.setLineDash([4,5]);for(let j=0;j<3;j++){const yy=57+j*32;ctx.beginPath();ctx.moveTo(b-12,yy);ctx.lineTo(right+65,yy);ctx.stroke();}ctx.setLineDash([]);}
+  if(p<.999){ctx.strokeStyle='#316c5050';ctx.setLineDash([4,5]);for(let j=0;j<3;j++){const yy=57+j*32;ctx.beginPath();ctx.moveTo(b-12,yy);ctx.lineTo(right+65,yy);ctx.stroke();}ctx.setLineDash([]);}
  }
  if($('carriers').checked){
   // Equal opposite motion at equilibrium; one-way excess transfer only in the illustrative transient.
@@ -201,7 +201,7 @@ function renderAtoms(){
    let x,y;
    if(free){const a=((clock*.06+i*.173)%1);x=i%2?30+a*(b-50):right+25+a*(w-right-50);y=65+(i%3)*22;}
    else{const v=((clock*.10+i*.131)%1);x=dir>0?w*.16+v*w*.67:w*.83-v*w*.67;y=70+(i%3)*22+Math.sin(v*Math.PI)*10;}
-   ctx.shadowColor=C.cyan;ctx.shadowBlur=8;ctx.fillStyle='#b9ebf5';ctx.globalAlpha=.65;ctx.beginPath();ctx.arc(x,y,2.2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;
+   ctx.shadowColor=C.cyan;ctx.shadowBlur=8;ctx.fillStyle='#116777';ctx.globalAlpha=.65;ctx.beginPath();ctx.arc(x,y,2.2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;
   }
  }
  ctx.fillStyle=C.muted;ctx.font='9px Times New Roman, Times, serif';ctx.textAlign='center';if(p>.02&&Math.abs(model.bend)>.015)ctx.fillText('Net interface charge (schematic)',right+10,25);ctx.font='10px Times New Roman, Times, serif';ctx.textAlign='center';ctx.fillText((state.classroom?'Teaching metal':state.metal.name)+' / electrode',w*.17,167);ctx.fillText((state.classroom?'Teaching semiconductor':chemicalName(state.semi.name))+' / 2D channel',w*.69,167);ctx.textAlign='left';
