@@ -12,7 +12,7 @@
  const label=(x,y,t,c='#71685c',size=12,anchor='start')=>`<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}">${Notation.svg(t)}</text>`;
  function arrow(x,a,b,color,t,side=1){const lo=Math.min(a,b),hi=Math.max(a,b);return `<path d="M${x} ${lo}V${hi} M${x-4} ${lo+6}L${x} ${lo}L${x+4} ${lo+6} M${x-4} ${hi-6}L${x} ${hi}L${x+4} ${hi-6}" stroke="${color}" stroke-width="2" fill="none"/>`+label(x+side*10,(lo+hi)/2+4,t,color,12,side===1?'start':'end');}
  function formation(i){
-  const a=loops[i],up=a.direction===1,cycle=a.running?a.time%10.5:Math.min(a.time,10.5),p=Math.max(0,Math.min(1,(cycle-1.5)/7)),b=up?.6:-.6;
+  const a=loops[i],up=a.direction===1,cycle=a.running?a.time%10:Math.min(a.time,10),p=Math.max(0,Math.min(1,(cycle-1)/7)),b=up?.6:-.6;
   const y=e=>55+(6-e)/8.5*280,sx=170+28*(1-p),end=530;
   const ec=z=>.8+(1-p)*b+p*b*(1-z)**2,efS=(1-p)*b;
   const path=shift=>Array.from({length:65},(_,j)=>`${j?"L":"M"}${sx+(end-sx)*j/64},${y(ec(j/64)+shift)}`).join(" " );
@@ -67,7 +67,7 @@
  get('concept-replay').addEventListener('click',()=>{if(phase>=1)phase=0;playing=!playing;paused=false;render();});
  get('concept-progress').addEventListener('input',()=>{phase=Number(get('concept-progress').value);playing=false;render();});
  document.querySelectorAll('[data-concept-phi]').forEach(b=>b.addEventListener('click',()=>{phi=Number(b.dataset.conceptPhi);document.querySelectorAll('[data-concept-phi]').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));render();}));
- document.querySelectorAll('[data-formation-pause]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset.formationPause),a=loops[i];if(a.running)a.time%=10.5;a.running=!a.running;button.textContent=a.running?'Pause animation':'Play animation';button.setAttribute('aria-pressed',String(!a.running));formation(i);}));
+ document.querySelectorAll('[data-formation-pause]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset.formationPause),a=loops[i];if(a.running)a.time%=10;a.running=!a.running;button.textContent=a.running?'Pause animation':'Play animation';button.setAttribute('aria-pressed',String(!a.running));formation(i);}));
  document.querySelectorAll('[data-formation-time]').forEach(input=>input.addEventListener('input',()=>{const i=Number(input.dataset.formationTime),a=loops[i];if(a.running)return;a.time=Number(input.value);formation(i);}));
  loops.forEach((a,i)=>{formation(i);const button=document.querySelector(`[data-formation-pause="${i}"]`);button.textContent=a.running?'Pause animation':'Play animation';button.setAttribute('aria-pressed',String(!a.running));});
  // Keep the guide's controls independent from the full experiment.
