@@ -92,7 +92,7 @@ function update(){
  $('bend').textContent=signed(model.bend);$('eq-bend').textContent=signed(model.bend)+' eV';
  $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${chemicalName(state.semi.name)} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Material ΦS = ${state.type==='n'?'χ + Δn':'χ + Eg − Δp'} = ${fmt(model.phiS)} eV. Method: ${state.semi.method||'Imported'}. ${state.semi.dataset==='multilayer'?state.semi.sourceNote:'C2DB representative calculation.'}${state.custom?' Manually edited: custom values are shown.':''}`;
  Notation.tree($('current-source'));
- updateStage();renderPlot();renderAtoms();
+ updateStage();renderPlot();renderAtoms();window.BeginnerLab?.refresh();
 }
 function updateStage(){
  const p=state.p,eq=p>=.999,early=p<.001;
