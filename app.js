@@ -120,38 +120,38 @@ function renderPlot(){
  const cb0=m.bn,cbBulk=m.delta+(1-p)*m.bend,efS=(1-p)*m.bend;
  const emin=Math.min(cb0-state.eg,cbBulk-state.eg,0)-.32;
  const emax=showVac?Math.max(state.phi,cbBulk+state.chi)+.55:Math.max(cb0,cbBulk,0)+.62;
- const Y=e=>72+(emax-e)/(emax-emin)*280;
+ const Y=e=>72+(emax-e)/(emax-emin)*500;
  const E=z=>ContactPhysics.bandAt(z,p,m,scaleLength);
  const curve=(shift=0)=>Array.from({length:121},(_,i)=>`${i?'L':'M'}${(sx+width*i/120).toFixed(2)},${Y(E(i/120)+shift).toFixed(2)}`).join(' ');
  const zoneEnd=sx+width*Math.min(scaleLength,1);
  let s=`<title>Ideal metal–2D semiconductor band diagram</title><desc>Contact progress ${Math.round(p*100)}%. Electron barrier ${fmt(m.bn)} eV, hole barrier ${fmt(m.bp)} eV, band bending ${fmt(m.bend)} eV. Horizontal axis: schematic position.</desc><defs><linearGradient id="zone"><stop stop-color="${m.regime==='accumulation'?C.cyan:C.amber}" stop-opacity=".12"/><stop offset="1" stop-color="${C.amber}" stop-opacity=".015"/></linearGradient><linearGradient id="metalGrad" x2="1" y2="0"><stop stop-color="#c8bcaa" stop-opacity=".3"/><stop offset="1" stop-color="#c8bcaa" stop-opacity=".65"/></linearGradient></defs>`;
- s+=`<rect x="80" y="62" width="228" height="300" fill="url(#metalGrad)"/><rect x="${sx}" y="62" width="${end-sx}" height="300" fill="#e4e9df" fill-opacity=".2"/>`;
- if(p>.01&&m.regime!=='flat')s+=`<rect x="${sx}" y="62" width="${zoneEnd-sx}" height="300" fill="url(#zone)" opacity="${p}"/>`;
+ s+=`<rect x="80" y="62" width="228" height="530" fill="url(#metalGrad)"/><rect x="${sx}" y="62" width="${end-sx}" height="530" fill="#e4e9df" fill-opacity=".2"/>`;
+ if(p>.01&&m.regime!=='flat')s+=`<rect x="${sx}" y="62" width="${zoneEnd-sx}" height="530" fill="url(#zone)" opacity="${p}"/>`;
  for(let e=Math.ceil(emin*2)/2;e<=emax;e+=.5){const y=Y(e);s+=line(70,y,890,y,'#d6cbbb',.7,'2 6')+text(61,y+4,fmt(e),'#807462',10,'end');}
- s+=line(70,355,70,65,'#807462')+text(36,48,'E (eV)',C.muted,11)+text(80,31,`${state.classroom?'Teaching metal':state.metal.name} · METAL`,C.amber,11)+text(sx+15,31,`${state.classroom?'Teaching semiconductor':chemicalName(state.semi.name)} · ${state.layers}L · ${state.type}-TYPE`,C.cyan,11);
- s+=line(308,62,308,362,'#a28e72',1)+line(sx,62,sx,362,'#a28e72',1);
+ s+=line(70,575,70,65,'#807462')+text(36,48,'E (eV)',C.muted,11)+text(80,31,`${state.classroom?'Teaching metal':state.metal.name} · METAL`,C.amber,11)+text(sx+15,31,`${state.classroom?'Teaching semiconductor':chemicalName(state.semi.name)} · ${state.layers}L · ${state.type}-TYPE`,C.cyan,11);
+ s+=line(308,62,308,592,'#a28e72',1)+line(sx,62,sx,592,'#a28e72',1);
  const cb=curve(),vb=curve(-state.eg);
  s+=`<path class="band-line" d="${cb}" fill="none" stroke="${C.cyan}" stroke-width="2.8"/><path d="${vb}" fill="none" stroke="${C.amber}" stroke-width="2.8"/>`;
  s+=line(80,Y(0),308,Y(0),'#625b51',1.5,'6 5')+line(sx,Y(efS),end,Y(efS),'#625b51',1.5,'6 5');
  if(eq)s+=line(308,Y(0),sx,Y(0),'#625b51',1.5,'6 5');
- s+=text(95,Y(0)-9,'EF,M = 0',C.text,11)+text(871,Y(cbBulk)+4,'EC',C.cyan,12)+text(871,Y(cbBulk-state.eg)+4,'EV',C.amber,12)+text(871,Y(efS)+4,eq?'EF':'EF,S',C.text,12);
- if(showVac){s+=arrow(690,Y(E((690-sx)/width)+state.chi),Y(E((690-sx)/width)),'#78529b',`χ = ${fmt(state.chi)} eV`,-1)+line(80,Y(state.phi),308,Y(state.phi),'#78529b',1,'3 4')+`<path d="${curve(state.chi)}" fill="none" stroke="#78529b" stroke-dasharray="3 4"/>`+text(871,Y(cbBulk+state.chi)+4,'Evac','#78529b',11);}
+ s+=text(95,Y(0)-9,'EF,M = 0',C.text,11)+line(860,Y(cbBulk),900,Y(cbBulk)-10,C.cyan)+text(908,Y(cbBulk)-10,'EC',C.cyan,15)+line(860,Y(cbBulk-state.eg),900,Y(cbBulk-state.eg)+14,C.amber)+text(908,Y(cbBulk-state.eg)+18,'EV',C.amber,15)+line(860,Y(efS),900,Y(efS)+(state.type==='n'?18:-14),C.text)+text(908,Y(efS)+(state.type==='n'?23:-14),eq?'EF':'EF,S',C.text,15);
+ if(showVac){s+=arrow(690,Y(E((690-sx)/width)+state.chi),Y(E((690-sx)/width)),'#78529b',`χ = ${fmt(state.chi)} eV`,-1)+line(80,Y(state.phi),308,Y(state.phi),'#78529b',1,'3 4')+`<path d="${curve(state.chi)}" fill="none" stroke="#78529b" stroke-dasharray="3 4"/>`+text(900,Y(cbBulk+state.chi)+4,'Evac','#78529b',14);}
  if(eq){
   const ymaj=state.type==='n'?Y(cb0):Y(cb0-state.eg);
   s+=arrow(sx+24,Y(0),ymaj,state.type==='n'?C.cyan:C.amber,`${state.type==='n'?'ΦBn':'ΦBp'} ${fmt(m.majority)}`);
-  s+=arrow(765,Y(0),state.type==='n'?Y(cbBulk):Y(cbBulk-state.eg),C.amber,`${state.type==='n'?'Δn':'Δp'} ${fmt(state.offset)}`,-1);
+
   s+=line(sx+width*.3,Y(cbBulk),sx+width*.56,Y(cbBulk),'#8a9a7b',1,'3 4');
   s+=arrow(sx+width*.46,Y(cb0),Y(cbBulk),C.mint,`B ${signed(m.bend)}`);
  }else if(p<.01){
   if(showVac){s+=arrow(180,Y(state.phi),Y(0),C.amber,`ΦM ${fmt(state.phi)}`);}
-  s+=arrow(760,Y(efS),Y(cbBulk),C.amber,`Δn ${fmt(m.delta)}`,-1);
-  s+=text(344,390,'No charge exchange yet',C.muted,10,'middle');
+
+  s+=text(344,625,'No charge exchange yet',C.muted,10,'middle');
  }
  if(p>.01&&m.regime!=='flat'){
-  s+=line(sx,380,zoneEnd,380,'#7c8b74',1)+line(sx,376,sx,384,'#7c8b74')+line(zoneEnd,376,zoneEnd,384,'#7c8b74');
-  s+=text((sx+zoneEnd)/2,400,m.regime==='accumulation'?'Accumulation · Schematic scale':m.inverted?'Space charge / possible inversion · Schematic':'Depletion · Schematic scale',C.muted,10,'middle');
+  s+=line(sx,610,zoneEnd,610,'#7c8b74',1)+line(sx,606,sx,614,'#7c8b74')+line(zoneEnd,606,zoneEnd,614,'#7c8b74');
+  s+=text((sx+zoneEnd)/2,635,m.regime==='accumulation'?'Accumulation · Schematic scale':m.inverted?'Space charge / possible inversion · Schematic':'Depletion · Schematic scale',C.muted,10,'middle');
  }
- s+=text(830,421,'Channel direction x →',C.muted,10,'end')+text(190,400,'Metal reservoir approximation',C.muted,10,'middle');
+ s+=text(830,660,'Channel direction x →',C.muted,10,'end')+text(190,635,'Metal reservoir approximation',C.muted,10,'middle');
  if($('carriers').checked){
   const shift=state.type==='p'?-state.eg:0;
   for(let i=0;i<15;i++){
@@ -159,11 +159,15 @@ function renderPlot(){
    s+=`<circle cx="${px}" cy="${py}" r="${i%3?2:3}" fill="${state.type==='p'?'none':C.cyan}" stroke="${state.type==='p'?C.amber:C.cyan}" stroke-width="1" opacity="${.35+.4*(i%3)/2}"/>`;
   }
  }
- if(pointer&&pointer.x>=sx&&pointer.x<=end&&pointer.y>=60&&pointer.y<365){
+ if(pointer&&pointer.x>=sx&&pointer.x<=end&&pointer.y>=60&&pointer.y<595){
   const z=(pointer.x-sx)/width,ec=E(z),px=pointer.x;
-  s+=line(px,65,px,355,'#6e665a',1,'3 4')+`<circle cx="${px}" cy="${Y(ec)}" r="4" fill="${C.cyan}"/>`;
+  s+=line(px,65,px,585,'#6e665a',1,'3 4')+`<circle cx="${px}" cy="${Y(ec)}" r="4" fill="${C.cyan}"/>`;
   const tx=Math.min(px+10,680);s+=`<rect x="${tx}" y="42" width="180" height="27" rx="4" fill="#ddd1bf" stroke="#b6a88f"/>`+text(tx+9,60,`EC(x) = ${fmt(ec)} eV`,C.text,11);
  }
+ const n=state.type==='n',upper=n?'EC(channel)':'EF,S',lower=n?'EF,S':'EV(channel)',delta=n?'Δn':'Δp';
+ s+=`<rect x="80" y="690" width="810" height="175" rx="8" fill="#fffaf1" stroke="#d9d0c2"/>`+text(100,718,'Remote channel · enlarged energy difference',C.text,17);
+ s+=line(130,750,765,750,n?C.cyan:C.text,2,n?'':'6 5')+line(130,825,765,825,n?C.text:C.amber,2,n?'6 5':'')+text(775,754,eq&&upper==='EF,S'?'EF':upper,n?C.cyan:C.text,15)+text(775,829,eq&&lower==='EF,S'?'EF':lower,n?C.text:C.amber,15);
+ s+=arrow(460,750,825,C.amber,'')+text(480,792,`${delta} = ${fmt(state.offset)} eV`,C.amber,18)+text(100,850,'Magnified for readability; this panel uses a separate energy scale.',C.muted,13);
  $('bands').innerHTML=s;
 }
 function renderAtoms(){
