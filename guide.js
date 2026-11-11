@@ -22,7 +22,7 @@
   v+=`<path d="M25 ${y(.8+b+4)}H170" stroke="#c7a6ee" stroke-dasharray="5 4"/><path d="${path(4)}" fill="none" stroke="#c7a6ee" stroke-width="2" stroke-dasharray="5 4"/>`+label(535,y(ec(1)+4)-5,'Evac','#c7a6ee',14)+arrow(470,y(ec((470-sx)/(end-sx))+4),y(ec((470-sx)/(end-sx))),'#c7a6ee','χ = 4.00 eV',-1);
   v+=label(35,y(0)-8,"EF,M","#c5d1d8",14)+label(540,y(ec(1))+5,"EC","#69c9e0",14)+label(540,y(ec(1)-1.8)+5,"EV","#e4b777",14)+label(540,y(efS)+5,p===1?"EF":"EF,S","#c5d1d8",14);
   if(p>0){for(let j=0;j<4;j++)v+=label(156,155+j*27,up?"−":"+","#e4b777",18,"middle")+label(sx+15,155+j*27,up?"+":"−","#97cbb6",18,"middle");}
-  if(p>0&&p<1){for(let j=0;j<5;j++){const t=(a.time*.4+j/5)%1,x=up?440-t*340:100+t*340;v+=`<circle cx="${x}" cy="${53+Math.sin(t*Math.PI)*8}" r="3.5" fill="#a1e5f5"/>`;}}
+  if(p>0&&p<1){for(let j=0;j<5;j++){const t=(a.time*.4+j/5)%1,x=up?440-t*340:100+t*340,z=Math.max(0,Math.min(1,(x-sx)/(end-sx))),electronY=y(ec(z)+.12);v+=`<circle cx="${x}" cy="${electronY}" r="3.5" fill="#a1e5f5"/>`;}}
   v+=label(280,412,p===0?"Before contact · different Fermi levels":p===1?"Equilibrium · common EF · zero net current":up?"Electrons: material → metal":"Electrons: metal → material","#c5d1d8",14,"middle");
   const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',p===0?'Before contact':p===1?'Equilibrium':'Charge transfer');get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
  }
@@ -50,7 +50,7 @@
   }else{
    if(p>.01){for(let i=0;i<5;i++){const yy=110+i*39;s+=label(217,yy,'−','#e4b777',16,'middle')+label(sx+15,yy,'+','#97cbb6',16,'middle');}}
    s+=label(465,109,p<.001?'Different Fermi levels':p>.999?'One common Fermi level':'Charge transfer → electric field', '#c5d1d8',12,'middle');
-   if(p>.001&&p<.999){for(let i=0;i<6;i++){const t=((elapsed*.22+i/6)%1),x=540-t*380,y=151+Math.sin(t*Math.PI)*(-15);s+=`<circle cx="${x}" cy="${y}" r="3" fill="#a1e5f5" opacity=".8"/>`;}}
+   if(p>.001&&p<.999){for(let i=0;i<6;i++){const t=((elapsed*.22+i/6)%1),x=540-t*380,y=Y(ec(Math.max(0,Math.min(1,(x-sx)/w)))+.12);s+=`<circle cx="${x}" cy="${y}" r="3" fill="#a1e5f5" opacity=".8"/>`;}}
    if(p>.999)s+=label(465,132,'Bidirectional exchange · zero net current','#93a7b1',10,'middle');
   }
   get('concept-diagram').innerHTML=s;
