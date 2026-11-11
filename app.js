@@ -114,7 +114,7 @@ function arrow(x,y1,y2,color,label,side=1){
  return line(x,a,x,b,color,1.6)+`<path d="M${x-4} ${a+6} L${x} ${a} L${x+4} ${a+6} M${x-4} ${b-6} L${x} ${b} L${x+4} ${b-6}" fill="none" stroke="${color}" stroke-width="1.6"/>`+text(x+side*9,(a+b)/2+4,label,color,11,side>0?'start':'end',`paint-order="stroke" stroke="#131a20" stroke-width="5" stroke-linejoin="round"`);
 }
 function renderPlot(){
- const p=state.p,m=model,eq=p>=.999,showVac=$('vacuum').checked;
+ const p=state.p,m=model,eq=p>=.999,showVac=true;
  const sx=308+70*(1-p),end=860,width=end-sx,scaleLength=.61*state.length;
  const cb0=m.bn,cbBulk=m.delta+(1-p)*m.bend,efS=(1-p)*m.bend;
  const emin=Math.min(cb0-state.eg,cbBulk-state.eg,0)-.32;
@@ -134,7 +134,7 @@ function renderPlot(){
  s+=line(80,Y(0),308,Y(0),'#b4c4cd',1.5,'6 5')+line(sx,Y(efS),end,Y(efS),'#b4c4cd',1.5,'6 5');
  if(eq)s+=line(308,Y(0),sx,Y(0),'#b4c4cd',1.5,'6 5');
  s+=text(95,Y(0)-9,'EF,M = 0',C.text,11)+text(871,Y(cbBulk)+4,'EC',C.cyan,12)+text(871,Y(cbBulk-state.eg)+4,'EV',C.amber,12)+text(871,Y(efS)+4,eq?'EF':'EF,S',C.text,12);
- if(showVac){s+=line(80,Y(state.phi),308,Y(state.phi),'#a6a7c8',1,'3 4')+`<path d="${curve(state.chi)}" fill="none" stroke="#a6a7c8" stroke-dasharray="3 4"/>`+text(871,Y(cbBulk+state.chi)+4,'Evac','#a6a7c8',11);}
+ if(showVac){s+=arrow(690,Y(E((690-sx)/width)+state.chi),Y(E((690-sx)/width)),'#c7a6ee',`χ = ${fmt(state.chi)} eV`,-1)+line(80,Y(state.phi),308,Y(state.phi),'#a6a7c8',1,'3 4')+`<path d="${curve(state.chi)}" fill="none" stroke="#a6a7c8" stroke-dasharray="3 4"/>`+text(871,Y(cbBulk+state.chi)+4,'Evac','#a6a7c8',11);}
  if(eq){
   const ymaj=state.type==='n'?Y(cb0):Y(cb0-state.eg);
   s+=arrow(sx+24,Y(0),ymaj,state.type==='n'?C.cyan:C.amber,`${state.type==='n'?'ΦBn':'ΦBp'} ${fmt(m.majority)}`);
@@ -142,7 +142,7 @@ function renderPlot(){
   s+=line(sx+width*.3,Y(cbBulk),sx+width*.56,Y(cbBulk),'#75877c',1,'3 4');
   s+=arrow(sx+width*.46,Y(cb0),Y(cbBulk),C.mint,`B ${signed(m.bend)}`);
  }else if(p<.01){
-  if(showVac){s+=arrow(180,Y(state.phi),Y(0),C.amber,`ΦM ${fmt(state.phi)}`)+arrow(sx+42,Y(state.phi),Y(cb0),C.cyan,`χ ${fmt(state.chi)}`);}
+  if(showVac){s+=arrow(180,Y(state.phi),Y(0),C.amber,`ΦM ${fmt(state.phi)}`);}
   s+=arrow(760,Y(efS),Y(cbBulk),C.amber,`Δn ${fmt(m.delta)}`,-1);
   s+=text(344,390,'No charge exchange yet',C.muted,10,'middle');
  }
@@ -221,7 +221,7 @@ document.querySelectorAll('[data-progress]').forEach(b=>b.addEventListener('clic
 $('play').addEventListener('click',()=>{if(state.p>=1)state.p=0;state.playing=!state.playing;if(state.playing)state.paused=false;syncControls();updateStage();renderPlot();});
 $('pause-motion').addEventListener('click',()=>{state.paused=!state.paused;syncControls();renderPlot();renderAtoms();});
 $('vacuum').addEventListener('change',renderPlot);$('carriers').addEventListener('change',()=>{renderPlot();renderAtoms();});
-$('reset').addEventListener('click',()=>{state.type='n';state.offset=.2;state.length=1;state.p=1;state.playing=false;Object.values(materialPickers).forEach(picker=>picker.close());$('metal').value='m0';$('semi').value='s0';$('layers').value='1';$('vacuum').checked=false;$('carriers').checked=true;applyMaterial();});
+$('reset').addEventListener('click',()=>{state.type='n';state.offset=.2;state.length=1;state.p=1;state.playing=false;Object.values(materialPickers).forEach(picker=>picker.close());$('metal').value='m0';$('semi').value='s0';$('layers').value='1';$('vacuum').checked=true;$('carriers').checked=true;applyMaterial();});
 $('classroom').addEventListener('click',()=>{state.phi=4.8;state.chi=4;state.eg=1.4;state.offset=.2;state.type='n';state.p=1;state.playing=false;state.custom=true;state.classroom=true;state.length=1;syncControls();update();});
 $('bands').addEventListener('pointermove',e=>{const r=$('bands').getBoundingClientRect(),scale=Math.min(r.width/960,r.height/440),offX=(r.width-960*scale)/2,offY=(r.height-440*scale)/2;pointer={x:(e.clientX-r.left-offX)/scale,y:(e.clientY-r.top-offY)/scale};renderPlot();});
 $('bands').addEventListener('pointerleave',()=>{pointer=null;renderPlot();});

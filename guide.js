@@ -13,38 +13,40 @@
  function arrow(x,a,b,color,t,side=1){const lo=Math.min(a,b),hi=Math.max(a,b);return `<path d="M${x} ${lo}V${hi} M${x-4} ${lo+6}L${x} ${lo}L${x+4} ${lo+6} M${x-4} ${hi-6}L${x} ${hi}L${x+4} ${hi-6}" stroke="${color}" stroke-width="2" fill="none"/>`+label(x+side*10,(lo+hi)/2+4,t,color,12,side===1?'start':'end');}
  function formation(i){
   const a=loops[i],up=a.direction===1,cycle=a.running?a.time%10.5:Math.min(a.time,10.5),p=Math.max(0,Math.min(1,(cycle-1.5)/7)),b=up?.6:-.6;
-  const y=e=>120-e*58,sx=170+28*(1-p),end=530;
+  const y=e=>55+(6-e)/8.5*280,sx=170+28*(1-p),end=530;
   const ec=z=>.8+(1-p)*b+p*b*(1-z)**2,efS=(1-p)*b;
   const path=shift=>Array.from({length:65},(_,j)=>`${j?"L":"M"}${sx+(end-sx)*j/64},${y(ec(j/64)+shift)}`).join(" " );
-  let v=`<title>${up?"Upward":"Downward"} band bending: n-type contact</title><rect x="25" y="35" width="145" height="235" fill="#26343c"/><rect x="${sx}" y="35" width="${end-sx}" height="235" fill="#17262b"/>`;
+  let v=`<title>${up?"Upward":"Downward"} band bending: n-type contact</title><rect x="25" y="35" width="145" height="350" fill="#26343c"/><rect x="${sx}" y="35" width="${end-sx}" height="350" fill="#17262b"/>`;
   v+=label(95,22,"METAL","#e4b777",13,"middle")+label(365,22,"n-TYPE MATERIAL","#69c9e0",13,"middle");
   v+=`<path d="${path(0)}" fill="none" stroke="#69c9e0" stroke-width="3"/><path d="${path(-1.8)}" fill="none" stroke="#e4b777" stroke-width="3"/><path d="M25 ${y(0)}H170 M${sx} ${y(efS)}H530" stroke="#c5d1d8" stroke-dasharray="6 5"/>`;
+  v+=`<path d="M25 ${y(.8+b+4)}H170" stroke="#c7a6ee" stroke-dasharray="5 4"/><path d="${path(4)}" fill="none" stroke="#c7a6ee" stroke-width="2" stroke-dasharray="5 4"/>`+label(535,y(ec(1)+4)-5,'Evac','#c7a6ee',14)+arrow(470,y(ec((470-sx)/(end-sx))+4),y(ec((470-sx)/(end-sx))),'#c7a6ee','χ = 4.00 eV',-1);
   v+=label(35,y(0)-8,"EF,M","#c5d1d8",14)+label(540,y(ec(1))+5,"EC","#69c9e0",14)+label(540,y(ec(1)-1.8)+5,"EV","#e4b777",14)+label(540,y(efS)+5,p===1?"EF":"EF,S","#c5d1d8",14);
   if(p>0){for(let j=0;j<4;j++)v+=label(156,155+j*27,up?"−":"+","#e4b777",18,"middle")+label(sx+15,155+j*27,up?"+":"−","#97cbb6",18,"middle");}
   if(p>0&&p<1){for(let j=0;j<5;j++){const t=(a.time*.4+j/5)%1,x=up?440-t*340:100+t*340;v+=`<circle cx="${x}" cy="${53+Math.sin(t*Math.PI)*8}" r="3.5" fill="#a1e5f5"/>`;}}
-  v+=label(280,297,p===0?"Before contact · different Fermi levels":p===1?"Equilibrium · common EF · zero net current":up?"Electrons: material → metal":"Electrons: metal → material","#c5d1d8",14,"middle");
+  v+=label(280,412,p===0?"Before contact · different Fermi levels":p===1?"Equilibrium · common EF · zero net current":up?"Electrons: material → metal":"Electrons: metal → material","#c5d1d8",14,"middle");
   const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',p===0?'Before contact':p===1?'Equilibrium':'Charge transfer');get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
  }
  function render(){
   if(step===2){const bn=phi-4,b=bn-.2;get('arrow-definitions').querySelectorAll('p')[0].innerHTML=Notation.html('ΦBn · Electron Schottky barrier')+'<br>'+Notation.html('From the common EF to the conduction-band edge at the interface, EC(0).')+'<br>'+Notation.html(`ΦBn = EC(0) − EF = ${bn.toFixed(2)} eV`);get('arrow-definitions').querySelectorAll('p')[2].innerHTML=Notation.html('B · Signed band bending')+'<br>'+Notation.html('From EC(channel) to EC(0). Positive B means bend up; negative B means bend down.')+'<br>'+Notation.html(`B = EC(0) − EC(channel) = +${b.toFixed(2)} eV`);}
   const p=step===1?phase:1,bn=phi-4,bend=bn-.2,efS=(1-p)*bend;
-  const sx=230+48*(1-p),end=670,w=end-sx,Y=e=>76+(1.3-e)/2.9*250;
+  const sx=230+48*(1-p),end=670,w=end-sx,Y=e=>76+(5.5-e)/7.1*355;
   const ec=z=>.2+(1-p)*bend+p*bend*Math.max(1-z/.65,0)**2;
   const path=shift=>Array.from({length:90},(_,i)=>`${i?'L':'M'}${sx+w*i/89},${Y(ec(i/89)+shift)}`).join(' ');
-  let s=`<title>Schottky barrier: an n-type example</title><desc>Electron barrier ${(bn).toFixed(2)} eV; channel offset 0.20 eV; final upward band bending ${(bend).toFixed(2)} eV. All spatial dimensions are schematic.</desc><rect x="55" y="62" width="175" height="272" rx="4" fill="#26343c"/><rect x="${sx}" y="62" width="${end-sx}" height="272" rx="4" fill="#17262b"/>`;
-  if(p>.01)s+=`<rect x="${sx}" y="62" width="${w*.65}" height="272" fill="#e4b777" opacity="${.07*p}"/>`;
+  let s=`<title>Schottky barrier: an n-type example</title><desc>Electron barrier ${(bn).toFixed(2)} eV; channel offset 0.20 eV; final upward band bending ${(bend).toFixed(2)} eV. All spatial dimensions are schematic.</desc><rect x="55" y="62" width="175" height="380" rx="4" fill="#26343c"/><rect x="${sx}" y="62" width="${end-sx}" height="380" rx="4" fill="#17262b"/>`;
+  if(p>.01)s+=`<rect x="${sx}" y="62" width="${w*.65}" height="380" fill="#e4b777" opacity="${.07*p}"/>`;
   s+=label(140,38,'METAL','#e4b777',12,'middle')+label(468,38,'n-TYPE SEMICONDUCTOR','#69c9e0',12,'middle');
   s+=`<path d="${path(0)}" stroke="#69c9e0" stroke-width="3" fill="none"/><path d="${path(-1.4)}" stroke="#e4b777" stroke-width="3" fill="none"/>`;
   s+=`<path d="M55 ${Y(0)}H230 M${sx} ${Y(efS)}H${end}" stroke="#c5d1d8" stroke-width="1.6" stroke-dasharray="6 5"/>`;
   s+=label(72,Y(0)-10,'EF,M = 0','#c5d1d8',12)+label(682,Y(ec(1))+4,'EC','#69c9e0',13)+label(682,Y(ec(1)-1.4)+4,'EV','#e4b777',13)+label(682,Y(efS)+4,p>.999?'EF':'EF,S','#c5d1d8',12);
-  s+=label(57,365,'Electron energy ↑', '#93a7b1',11)+label(670,365,'In-plane position →', '#93a7b1',11,'end');
+  s+=`<path d="M55 ${Y(phi)}H230" stroke="#c7a6ee" stroke-dasharray="5 4"/><path d="${path(4)}" fill="none" stroke="#c7a6ee" stroke-width="2" stroke-dasharray="5 4"/>`+label(682,Y(ec(1)+4)+4,'Evac','#c7a6ee',13)+arrow(620,Y(ec((620-sx)/w)+4),Y(ec((620-sx)/w)),'#c7a6ee','χ = 4.00 eV',-1);
+  s+=label(57,475,'Electron energy ↑', '#93a7b1',11)+label(670,475,'In-plane position →', '#93a7b1',11,'end');
   if(step!==1){
    s+=arrow(sx,Y(0),Y(bn),'#69c9e0',`ΦBn = ${bn.toFixed(2)} eV`,-1);
    if(step===2){
     s+=`<path d="M${sx+80} ${Y(.2)}H${sx+w*.62}" stroke="#97cbb6" stroke-dasharray="3 4"/>`;
     s+=arrow(sx+w*.53,Y(.2),Y(bn),'#97cbb6',`B = ${bend.toFixed(2)}`);
     s+=arrow(640,Y(0),Y(.2),'#e4b777','Δn = 0.20',-1);
-   }else{s+=label(460,108,'Barrier ≠ band bending','#c5d1d8',12);}
+   }else{s+=label(460,435,'Barrier ≠ band bending','#c5d1d8',12);}
   }else{
    if(p>.01){for(let i=0;i<5;i++){const yy=110+i*39;s+=label(217,yy,'−','#e4b777',16,'middle')+label(sx+15,yy,'+','#97cbb6',16,'middle');}}
    s+=label(465,109,p<.001?'Different Fermi levels':p>.999?'One common Fermi level':'Charge transfer → electric field', '#c5d1d8',12,'middle');
