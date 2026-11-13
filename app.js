@@ -71,7 +71,7 @@ function syncControls(){for(const k of ['phi','chi','eg','offset','length']){
  if(k==='chi'||k==='eg'){ $(k).min=String(Math.min(k==='chi'?2:.06,state[k]));$(k).max=String(Math.max(k==='chi'?5.5:3.5,state[k]));$(k).step='.001';}
  $(k).value=state[k];$(k+'-value').textContent=k==='length'?state[k].toFixed(1):fmt(state[k]);
 }for(const t of ['n','p']){const b=$('type-'+t);b.classList.toggle('selected',state.type===t);b.setAttribute('aria-pressed',String(state.type===t));}
- $('offset-desc').textContent=state.type==='n'?'Δₙ = E꜀(channel) − Eꜰ':'Δₚ = Eꜰ − Eᵥ(channel)';
+ $('offset-desc').textContent=state.type==='n'?'eφn = E꜀(channel) − Eꜰ':'Δₚ = Eꜰ − Eᵥ(channel)';
  Notation.tree($('offset-desc'));
  $('progress').value=state.p;
  $('pause-motion').textContent=state.paused?'Resume motion':'Pause motion';$('pause-motion').setAttribute('aria-pressed',String(state.paused));
@@ -90,7 +90,7 @@ function update(){
  $('data-mode').textContent=state.custom?'Custom parameters · Literature values modified':state.metal.id.startsWith('import')||state.semi.id.startsWith('import')?'Imported data':'Literature values · Editable';
  for(const [id,value] of [['bn',model.bn],['bp',model.bp],['eq-bn',model.bn],['eq-delta',model.delta]])$(id).textContent=fmt(value)+(id.startsWith('eq')?' eV':'');
  $('bend').textContent=signed(model.bend);$('eq-bend').textContent=signed(model.bend)+' eV';
- $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${chemicalName(state.semi.name)} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Material ΦS = ${state.type==='n'?'χ + Δn':'χ + Eg − Δp'} = ${fmt(model.phiS)} eV. Method: ${state.semi.method||'Imported'}. ${state.semi.dataset==='multilayer'?state.semi.sourceNote:'C2DB representative calculation.'}${state.custom?' Manually edited: custom values are shown.':''}`;
+ $('current-source').textContent=`Current: ${state.metal.name} ΦM = ${fmt(state.phi)} eV; ${chemicalName(state.semi.name)} ${state.layers}L, χ = ${fmt(state.chi)} eV, Eg = ${fmt(state.eg)} eV. Material ΦS = ${state.type==='n'?'χ + eφn':'χ + Eg − Δp'} = ${fmt(model.phiS)} eV. Method: ${state.semi.method||'Imported'}. ${state.semi.dataset==='multilayer'?state.semi.sourceNote:'C2DB representative calculation.'}${state.custom?' Manually edited: custom values are shown.':''}`;
  Notation.tree($('current-source'));
  updateStage();renderPlot();renderAtoms();window.BeginnerLab?.refresh();
 }
@@ -141,7 +141,7 @@ function renderPlot(){
   s+=arrow(sx+24,Y(0),ymaj,state.type==='n'?C.cyan:C.amber,`${state.type==='n'?'ΦBn':'ΦBp'} ${fmt(m.majority)}`);
 
   s+=line(sx+width*.3,Y(cbBulk),sx+width*.56,Y(cbBulk),'#8a9a7b',1,'3 4');
-  s+=arrow(sx+width*.46,Y(cb0),Y(cbBulk),C.mint,`B ${signed(m.bend)}`);
+  s+=arrow(sx+width*.46,Y(cb0),Y(cbBulk),C.mint,`eVbi ${signed(m.bend)}`);
  }else if(p<.01){
   if(showVac){s+=arrow(180,Y(state.phi),Y(0),C.amber,`ΦM ${fmt(state.phi)}`);}
 
@@ -164,7 +164,7 @@ function renderPlot(){
   s+=line(px,65,px,585,'#6e665a',1,'3 4')+`<circle cx="${px}" cy="${Y(ec)}" r="4" fill="${C.cyan}"/>`;
   const tx=Math.min(px+10,680);s+=`<rect x="${tx}" y="42" width="180" height="27" rx="4" fill="#ddd1bf" stroke="#b6a88f"/>`+text(tx+9,60,`EC(x) = ${fmt(ec)} eV`,C.text,11);
  }
- const n=state.type==='n',upper=n?'EC(channel)':'EF,S',lower=n?'EF,S':'EV(channel)',delta=n?'Δn':'Δp';
+ const n=state.type==='n',upper=n?'EC(channel)':'EF,S',lower=n?'EF,S':'EV(channel)',delta=n?'eφn':'Δp';
  s+=`<rect x="80" y="690" width="810" height="175" rx="8" fill="#fffaf1" stroke="#d9d0c2"/>`+text(100,718,'Remote channel · enlarged energy difference',C.text,17);
  s+=line(130,750,765,750,n?C.cyan:C.text,2,n?'':'6 5')+line(130,825,765,825,n?C.text:C.amber,2,n?'6 5':'')+text(775,754,eq&&upper==='EF,S'?'EF':upper,n?C.cyan:C.text,15)+text(775,829,eq&&lower==='EF,S'?'EF':lower,n?C.text:C.amber,15);
  s+=arrow(460,750,825,C.amber,'')+text(480,792,`${delta} = ${fmt(state.offset)} eV`,C.amber,18)+text(100,850,'Magnified for readability; this panel uses a separate energy scale.',C.muted,13);

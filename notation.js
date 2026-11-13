@@ -2,6 +2,7 @@
 // Format only known physics tokens. Always escape text before producing markup.
 window.Notation=(()=>{
  const tokens={
+  'eVbi':['eV','bi'],'eφn':['eφ','n'],
   'EF,M':['E','F,M'],'EF,S':['E','F,S'],'EF':['E','F'],'EC':['E','C'],'EV':['E','V'],
   'ΦBn':['Φ','Bn'],'ΦBp':['Φ','Bp'],'ΦM':['Φ','M'],'ΦS':['Φ','S'],
   'Δn':['Δ','n'],'Δp':['Δ','p'],'Eg':['E','g'],'qVbi':['qV','bi'],'Vbi':['V','bi'],'Evac':['E','vac'],

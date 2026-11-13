@@ -7,7 +7,7 @@
  const copy=[
   {title:'An energy barrier, not a physical wall.',body:'A Schottky barrier is the energy offset between the metal Fermi level and a semiconductor band edge at the interface. For electrons, measure upward from EF to the interface conduction-band edge EC(0).',formula:'ΦBn = EC(0) − EF = ΦM − χ',takeaway:'Here, the electron barrier is 0.80 eV. The hole barrier is Eg − ΦBn = 0.60 eV. These are different distances in the same band diagram.'},
   {title:'Contact lets electrons redistribute.',body:'Compare two n-type contacts. When ΦM > ΦS, electrons transfer from the semiconductor to the metal and the bands bend up. When ΦM < ΦS, electrons transfer into the semiconductor and the bands bend down.',formula:'At equilibrium: EF,M = EF,S',takeaway:'Equilibrium means zero net current, not that every electron stops moving. Each panel loops independently: before contact, charge transfer, then equilibrium. The reset starts a new teaching cycle; it is not a spontaneous reversal of contact formation.'},
-  {title:'Three arrows. Three different starting points.',body:'The interface barrier starts at EF. Band bending starts at the remote channel conduction band. The remaining distance is Δn, set here to 0.20 eV. Add the two smaller distances to recover the full barrier.',formula:'ΦBn = Δn + B',takeaway:'Try a larger metal work function. With χ and Δn fixed, both the electron barrier and upward band bending increase by 0.20 eV.'}
+  {title:'Three arrows. Three different starting points.',body:'The interface barrier starts at EF. Band bending starts at the remote channel conduction band. The remaining distance is eφn, set here to 0.20 eV. Add the two smaller distances to recover the full barrier.',formula:'ΦBn = eφn + eVbi',takeaway:'Try a larger metal work function. With χ and eφn fixed, both the electron barrier and upward band bending increase by 0.20 eV.'}
  ];
  const label=(x,y,t,c='#71685c',size=12,anchor='start')=>`<text x="${x}" y="${y}" fill="${c}" font-size="${size}" text-anchor="${anchor}">${Notation.svg(t)}</text>`;
  function arrow(x,a,b,color,t,side=1){const lo=Math.min(a,b),hi=Math.max(a,b);return `<path d="M${x} ${lo}V${hi} M${x-4} ${lo+6}L${x} ${lo}L${x+4} ${lo+6} M${x-4} ${hi-6}L${x} ${hi}L${x+4} ${hi-6}" stroke="${color}" stroke-width="2" fill="none"/>`+label(x+side*10,(lo+hi)/2+4,t,color,12,side===1?'start':'end');}
@@ -27,7 +27,7 @@
   const timeline=get(`formation-time-${i}`);timeline.disabled=a.running;timeline.value=cycle;timeline.setAttribute('aria-valuetext',p===0?'Before contact':p===1?'Equilibrium':'Charge transfer');get(`formation-hint-${i}`).textContent=a.running?'Pause to scrub through time.':'Paused · drag the timeline to explore.';get(`formation-${i}`).innerHTML=v;get(`formation-phase-${i}`).textContent=p===0?"Before contact":p===1?"Equilibrium":"Charge transfer";
  }
  function render(){
-  if(step===2){const bn=phi-4,b=bn-.2;get('arrow-definitions').querySelectorAll('p')[0].innerHTML=Notation.html('ΦBn · Electron Schottky barrier')+'<br>'+Notation.html('From the common EF to the conduction-band edge at the interface, EC(0).')+'<br>'+Notation.html(`ΦBn = EC(0) − EF = ${bn.toFixed(2)} eV`);get('arrow-definitions').querySelectorAll('p')[2].innerHTML=Notation.html('B · Signed band bending')+'<br>'+Notation.html('From EC(channel) to EC(0). Positive B means bend up; negative B means bend down.')+'<br>'+Notation.html(`B = EC(0) − EC(channel) = +${b.toFixed(2)} eV`);}
+  if(step===2){const bn=phi-4,b=bn-.2;get('arrow-definitions').querySelectorAll('p')[0].innerHTML=Notation.html('ΦBn · Electron Schottky barrier')+'<br>'+Notation.html('From the common EF to the conduction-band edge at the interface, EC(0).')+'<br>'+Notation.html(`ΦBn = EC(0) − EF = ${bn.toFixed(2)} eV`);get('arrow-definitions').querySelectorAll('p')[2].innerHTML=Notation.html('eVbi · Signed band bending')+'<br>'+Notation.html('From EC(channel) to EC(0). Positive eVbi means bend up; negative eVbi means bend down.')+'<br>'+Notation.html(`eVbi = EC(0) − EC(channel) = +${b.toFixed(2)} eV`);}
   const p=step===1?phase:1,bn=phi-4,bend=bn-.2,efS=(1-p)*bend;
   const sx=230+48*(1-p),end=670,w=end-sx,Y=e=>76+(5.5-e)/7.1*355;
   const ec=z=>.2+(1-p)*bend+p*bend*Math.max(1-z/.65,0)**2;
@@ -44,8 +44,8 @@
    s+=arrow(sx,Y(0),Y(bn),'#116777',`ΦBn = ${bn.toFixed(2)} eV`,-1);
    if(step===2){
     s+=`<path d="M${sx+80} ${Y(.2)}H${sx+w*.62}" stroke="#316c50" stroke-dasharray="3 4"/>`;
-    s+=arrow(sx+w*.53,Y(.2),Y(bn),'#316c50',`B = ${bend.toFixed(2)}`);
-    s+=arrow(640,Y(0),Y(.2),'#9a5a18','Δn = 0.20',-1);
+    s+=arrow(sx+w*.53,Y(.2),Y(bn),'#316c50',`eVbi = ${bend.toFixed(2)}`);
+    s+=arrow(640,Y(0),Y(.2),'#9a5a18','eφn = 0.20',-1);
    }else{s+=label(460,435,'Barrier ≠ band bending','#575248',12);}
   }else{
    if(p>.01){for(let i=0;i<5;i++){const yy=110+i*39;s+=label(217,yy,'−','#9a5a18',16,'middle')+label(sx+15,yy,'+','#316c50',16,'middle');}}
